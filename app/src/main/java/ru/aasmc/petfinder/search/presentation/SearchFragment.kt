@@ -1,4 +1,6 @@
 package ru.aasmc.petfinder.search.presentation
 
-class SearchFragment {
+import androidx.fragment.app.Fragment
+
+class SearchFragment : Fragment() {
 }
