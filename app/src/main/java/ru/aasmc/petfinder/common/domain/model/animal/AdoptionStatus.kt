@@ -1,4 +1,8 @@
 package ru.aasmc.petfinder.common.domain.model.animal
 
-class AdoptionStatus {
+enum class AdoptionStatus {
+    UNKNOWN,
+    ADOPTABLE,
+    ADOPTED,
+    FOUND
 }
