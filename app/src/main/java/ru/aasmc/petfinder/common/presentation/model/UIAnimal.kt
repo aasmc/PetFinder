@@ -1,4 +1,7 @@
 package ru.aasmc.petfinder.common.presentation.model
 
-class UIAnimal {
-}
+data class UIAnimal(
+    val id: Long,
+    val name: String,
+    val photo: String
+)
