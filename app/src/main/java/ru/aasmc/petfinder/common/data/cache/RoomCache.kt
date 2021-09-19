@@ -1,4 +1,14 @@
 package ru.aasmc.petfinder.common.data.cache
 
-class RoomCache {
+import ru.aasmc.petfinder.common.data.cache.daos.OrganizationsDao
+import ru.aasmc.petfinder.common.data.cache.model.cachedorganization.CachedOrganization
+import javax.inject.Inject
+
+class RoomCache @Inject constructor(
+    private val organizationsDao: OrganizationsDao
+) : Cache {
+
+    override fun storeOrganizations(organizations: List<CachedOrganization>) {
+        organizationsDao.insert(organizations)
+    }
 }
