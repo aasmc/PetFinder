@@ -49,6 +49,11 @@ android {
     buildFeatures {
         viewBinding true
     }
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
 }
 
 dependencies {
@@ -66,6 +71,12 @@ dependencies {
     androidTestImplementation "androidx.test.ext:junit:$androidx_junit_version"
     androidTestImplementation "androidx.test.espresso:espresso-core:$espresso_version"
 
+    testImplementation "com.google.truth:truth:$google_truth_version"
+    testImplementation "org.mockito:mockito-core:$mockito_version"
+    testImplementation "org.robolectric:robolectric:$robolectric_version"
+    androidTestImplementation "com.google.truth:truth:$google_truth_version"
+    androidTestImplementation "androidx.arch.core:core-testing:$androidx_core_testing_version"
+
     // TUTORIAL DEPENDENCIES HERE
 
     // Modules
@@ -78,6 +89,9 @@ dependencies {
     implementation "com.squareup.okhttp3:logging-interceptor:$okHttp_version"
     implementation "com.squareup.moshi:moshi-kotlin:$moshi_version"
     kapt "com.squareup.moshi:moshi-kotlin-codegen:$moshi_version"
+
+    testImplementation("com.squareup.okhttp3:mockwebserver:$mockwebserver_version")
+    androidTestImplementation("com.squareup.okhttp3:mockwebserver:$mockwebserver_version")
 
     // Cache
     implementation "androidx.room:room-runtime:$room_version"
