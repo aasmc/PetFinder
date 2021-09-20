@@ -11,5 +11,5 @@ data class AnimalWithDetails(
     val media: Media,
     val tags: List<String>,
     val adoptionStatus: AdoptionStatus,
-    val publishedApi: LocalDateTime
+    val publishedAt: LocalDateTime
 )
