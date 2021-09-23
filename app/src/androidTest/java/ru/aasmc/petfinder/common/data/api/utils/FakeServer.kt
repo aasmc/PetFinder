@@ -11,15 +11,14 @@ import java.io.IOException
 import java.io.InputStream
 
 class FakeServer {
-
     private val mockWebServer = MockWebServer()
 
-    private val endPointSeparator = "/"
-    private val animalsEndpointPath = endPointSeparator + ApiConstants.ANIMALS_ENDPOINT
+    private val endpointSeparator = "/"
+    private val animalsEndpointPath = endpointSeparator + ApiConstants.ANIMALS_ENDPOINT
     private val notFoundResponse = MockResponse().setResponseCode(404)
 
     val baseEndpoint
-        get() = mockWebServer.url(endPointSeparator)
+        get() = mockWebServer.url(endpointSeparator)
 
     fun start() {
         mockWebServer.start(8080)
@@ -33,8 +32,7 @@ class FakeServer {
                 return with(path) {
                     when {
                         startsWith(animalsEndpointPath) -> {
-                            MockResponse().setResponseCode(200)
-                                .setBody(getJson("animals.json"))
+                            MockResponse().setResponseCode(200).setBody(getJson("animals.json"))
                         }
                         else -> {
                             notFoundResponse
@@ -45,7 +43,7 @@ class FakeServer {
         }
     }
 
-    fun shutDown() {
+    fun shutdown() {
         mockWebServer.shutdown()
     }
 

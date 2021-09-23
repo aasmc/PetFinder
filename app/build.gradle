@@ -10,7 +10,7 @@ apply plugin: 'dagger.hilt.android.plugin'
 
 android {
     compileSdk 31
-
+    compileSdkVersion rootProject.ext.compileSdkVersion
     defaultConfig {
         applicationId "ru.aasmc.petfinder"
         minSdk 24
@@ -18,7 +18,7 @@ android {
         versionCode 1
         versionName "1.0"
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "ru.aasmc.petfinder.HiltTestRunner"
 
         javaCompileOptions {
             annotationProcessorOptions {
@@ -52,6 +52,11 @@ android {
     testOptions {
         unitTests {
             includeAndroidResources = true
+        }
+    }
+    sourceSets {
+        androidTest {
+            assets.srcDirs = ["src/debug/assets"]
         }
     }
 }
@@ -113,6 +118,9 @@ dependencies {
 
     implementation "androidx.hilt:hilt-lifecycle-viewmodel:$androidx_hilt_version"
     kapt "androidx.hilt:hilt-compiler:$androidx_hilt_version"
+
+    androidTestImplementation "com.google.dagger:hilt-android-testing:$hilt_version"
+    kaptAndroidTest "com.google.dagger:hilt-android-compiler:$hilt_version"
 
     // UI
     implementation "com.github.bumptech.glide:glide:$glide_version"

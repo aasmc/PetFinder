@@ -10,10 +10,7 @@ import javax.inject.Inject
  * Uses [ConnectionManager] to check the internet connection, then either throws a
  * [NetworkUnavailableException] or proceeds with the request.
  */
-class NetworkStatusInterceptor @Inject constructor(
-    private val connectionManager: ConnectionManager
-): Interceptor {
-
+class NetworkStatusInterceptor @Inject constructor(private val connectionManager: ConnectionManager) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         return if (connectionManager.isConnected) {
             chain.proceed(chain.request())

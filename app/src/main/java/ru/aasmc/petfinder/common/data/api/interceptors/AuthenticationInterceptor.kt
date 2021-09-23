@@ -24,7 +24,7 @@ import javax.inject.Inject
  */
 class AuthenticationInterceptor @Inject constructor(
     private val preferences: Preferences
-) : Interceptor {
+): Interceptor {
 
     companion object {
         const val UNAUTHORIZED = 401
@@ -35,20 +35,22 @@ class AuthenticationInterceptor @Inject constructor(
         val tokenExpirationTime = Instant.ofEpochSecond(preferences.getTokenExpirationTime())
         val request = chain.request()
 
-        // we don't need this here. It is just for educational purpuses here.
+        // For requests that don't need authentication
         // if (chain.request().headers[NO_AUTH_HEADER] != null) return chain.proceed(request)
+        val interceptedRequest: Request
 
-        val interceptedRequest: Request = if (tokenExpirationTime.isAfter(Instant.now())) {
-            chain.createAuthenticatedRequest(token)
+        if (tokenExpirationTime.isAfter(Instant.now())) {
+            // token is still valid, so we can proceed with the request
+            interceptedRequest = chain.createAuthenticatedRequest(token)
         } else {
-            // try to refresh the token
+            // Token expired. Gotta refresh it before proceeding with the actual request
             val tokenRefreshResponse = chain.refreshToken()
-            if (tokenRefreshResponse.isSuccessful) {
+
+            interceptedRequest = if (tokenRefreshResponse.isSuccessful) {
                 val newToken = mapToken(tokenRefreshResponse)
-                // try to save new token to preferences
+
                 if (newToken.isValid()) {
                     storeNewToken(newToken)
-                    // create authenticated request with the new token
                     chain.createAuthenticatedRequest(newToken.accessToken!!)
                 } else {
                     request
@@ -91,16 +93,18 @@ class AuthenticationInterceptor @Inject constructor(
 
     private fun Interceptor.Chain.proceedDeletingTokenIfUnauthorized(request: Request): Response {
         val response = proceed(request)
+
         if (response.code == UNAUTHORIZED) {
             preferences.deleteTokenInfo()
         }
+
         return response
     }
 
     private fun mapToken(tokenRefreshResponse: Response): ApiToken {
         val moshi = Moshi.Builder().build()
-        val tokenAdapter = moshi.adapter<ApiToken>(ApiToken::class.java)
-        val responseBody = tokenRefreshResponse.body!! // if successful, this should be good:)
+        val tokenAdapter = moshi.adapter(ApiToken::class.java)
+        val responseBody = tokenRefreshResponse.body!! // if successful, this should be good :]
 
         return tokenAdapter.fromJson(responseBody.string()) ?: ApiToken.INVALID
     }
@@ -113,29 +117,3 @@ class AuthenticationInterceptor @Inject constructor(
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

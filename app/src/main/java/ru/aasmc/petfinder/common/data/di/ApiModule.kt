@@ -29,13 +29,18 @@ object ApiModule {
      */
     @Provides
     @Singleton
-    fun provideApi(okHttpClient: OkHttpClient): PetFinderApi {
+    fun provideApi(builder: Retrofit.Builder): PetFinderApi {
+        return builder
+            .build()
+            .create(PetFinderApi::class.java)
+    }
+
+    @Provides
+    fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit.Builder {
         return Retrofit.Builder()
             .baseUrl(ApiConstants.BASE_ENDPOINT)
             .client(okHttpClient)
             .addConverterFactory(MoshiConverterFactory.create())
-            .build()
-            .create(PetFinderApi::class.java)
     }
 
     @Provides
