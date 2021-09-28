@@ -87,6 +87,14 @@ dependencies {
     // Modules
     implementation project(":logging")
 
+    // lifecycle
+    def lifecycle = "2.4.0-beta01"
+    // ViewModel
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle"
+    // LiveData
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle"
+
+
     // Network
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
     implementation "com.squareup.retrofit2:converter-moshi:$moshi_converter_version"
