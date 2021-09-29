@@ -5,7 +5,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxkotlin.addTo
 import io.reactivex.subjects.BehaviorSubject
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.launch
@@ -16,11 +18,14 @@ import ru.aasmc.petfinder.common.domain.model.pagination.Pagination
 import ru.aasmc.petfinder.common.presentation.model.mappers.UiAnimalMapper
 import ru.aasmc.petfinder.common.utils.DispatchersProvider
 import ru.aasmc.petfinder.common.utils.createExceptionHandler
+import ru.aasmc.petfinder.search.domain.model.SearchResults
 import ru.aasmc.petfinder.search.domain.usecases.GetSearchFilters
+import ru.aasmc.petfinder.search.domain.usecases.SearchAnimals
 import javax.inject.Inject
 
 @HiltViewModel
 class SearchFragmentViewModel @Inject constructor(
+    private val searchAnimals: SearchAnimals,
     private val getSearchFilters: GetSearchFilters,
     private val uiAnimalMapper: UiAnimalMapper,
     private val dispatchersProvider: DispatchersProvider,
@@ -53,12 +58,59 @@ class SearchFragmentViewModel @Inject constructor(
     }
 
     private fun onSearchParametersUpdate(event: SearchEvent) {
-
+        when (event) {
+            is SearchEvent.QueryInput -> updateQuery(event.input)
+            is SearchEvent.AgeValueSelected -> updateAgeValue(event.age)
+            is SearchEvent.TypeValueSelected -> updateTypeValue(event.type)
+        }
     }
+
+    private fun updateTypeValue(type: String) {
+        typeSubject.onNext(type)
+    }
+
+    private fun updateAgeValue(age: String) {
+        ageSubject.onNext(age)
+    }
+
+    private fun updateQuery(input: String) {
+        resetPagination()
+
+        querySubject.onNext(input)
+
+        if (input.isEmpty()) {
+            setNoSearchQueryState()
+        } else {
+            setSearchingState()
+        }
+    }
+
 
     private fun prepareForSearch() {
         loadFilterValues()
+        setupSearchSubscription()
     }
+
+    private fun setupSearchSubscription() {
+        searchAnimals(querySubject, ageSubject, typeSubject)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { onSearchResults(it) },
+                { onFailure(it) }
+            )
+            .addTo(compositeDisposable)
+    }
+
+    private fun onSearchResults(searchResults: SearchResults) {
+        val (animals, searchParameters) = searchResults
+
+        if (animals.isEmpty()) {
+            // search remotely
+        } else {
+            onAnimalList(animals)
+        }
+    }
+
 
     private fun loadFilterValues() {
         val exceptionHandler =

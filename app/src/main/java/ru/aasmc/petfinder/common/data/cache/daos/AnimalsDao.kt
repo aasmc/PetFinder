@@ -43,11 +43,15 @@ abstract class AnimalsDao {
     @Query("SELECT DISTINCT type FROM animals")
     abstract suspend fun getAllTypes(): List<String>
 
+    /**
+     * In this method we use '%' || notation for SQLLite request to
+     * search for name, age and type even if they are prefixed or suffixed with other characters.
+     */
     @Transaction
     @Query(
         """
             SELECT * FROM animals
-            WHERE name LIKE '%' || :name || '%' AND
+            WHERE name LIKE '%' || :name || '%' AND 
             age LIKE '%' || :age || '%' AND
             type LIKE '%' || :type || '%'
         """

@@ -6,6 +6,11 @@ import ru.aasmc.petfinder.common.presentation.model.UIAnimal
 data class SearchViewState(
     val noSearchQuery: Boolean = true,
     val searchResults: List<UIAnimal> = emptyList(),
+    // filter values are used to populate ArrayAdapter of the AutoCompleteTextView
+    // since we know that the values will not change, we only need them once, but the class is
+    // immutable, so it will be recreated on every update of the state. Therefore we wrap the
+    // values in the Event class to get them once if they were not handled. It prevents us from
+    // creating the ArrayAdapter multiple times.
     val ageFilterValues: Event<List<String>> = Event(emptyList()),
     val typeFilterValues: Event<List<String>> = Event(emptyList()),
     val searchingRemotely: Boolean = false,
