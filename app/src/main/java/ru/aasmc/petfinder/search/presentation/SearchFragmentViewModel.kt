@@ -25,6 +25,7 @@ import ru.aasmc.petfinder.search.domain.model.SearchResults
 import ru.aasmc.petfinder.search.domain.usecases.GetSearchFilters
 import ru.aasmc.petfinder.search.domain.usecases.SearchAnimals
 import ru.aasmc.petfinder.search.domain.usecases.SearchAnimalsRemotely
+import java.util.concurrent.CancellationException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -45,6 +46,10 @@ class SearchFragmentViewModel @Inject constructor(
     private val ageSubject = BehaviorSubject.createDefault("")
     private val typeSubject = BehaviorSubject.createDefault("")
 
+    /**
+     * Job that tracks a remote search and cancels it, if a new one is attempted while
+     * the old one is in progress. We cancel it when we change any of the search parameters.
+     */
     private var remoteSearchJob: Job = Job()
     private var currentPage = 0
 
@@ -64,6 +69,9 @@ class SearchFragmentViewModel @Inject constructor(
     }
 
     private fun onSearchParametersUpdate(event: SearchEvent) {
+        remoteSearchJob.cancel(
+            CancellationException("New search parameters incoming!")
+        )
         when (event) {
             is SearchEvent.QueryInput -> updateQuery(event.input)
             is SearchEvent.AgeValueSelected -> updateAgeValue(event.age)
@@ -143,6 +151,11 @@ class SearchFragmentViewModel @Inject constructor(
             onPaginationInfoObtained(pagination)
         }
 
+        // here we verify that we are indeed cancelling the coroutine on a new search
+        // Cancelling a coroutine is successful because Retrofit supports coroutine cancellation.
+        // If we used some other client that doesn't check for coroutine cancellation, then
+        // no log would be printed because coroutines are cancelled cooperatively (i.e. they
+        // need to check for cancellation).
         remoteSearchJob.invokeOnCompletion { it?.printStackTrace() }
     }
 

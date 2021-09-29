@@ -173,8 +173,15 @@ class SearchFragment : Fragment() {
             )
         }
         updateRemoteSearchViews(searchingRemotely)
+        updateNoResultsViews(noResultsState)
         handleFailures(failure)
     }
+
+    private fun updateNoResultsViews(noResultsState: Boolean) {
+        binding.noSearchResultsImageView.isVisible = noResultsState
+        binding.noSearchResultsText.isVisible = noResultsState
+    }
+
 
     private fun updateRemoteSearchViews(searchingRemotely: Boolean) {
         binding.searchRemotelyProgressBar.isVisible = searchingRemotely
