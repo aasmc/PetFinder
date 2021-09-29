@@ -172,7 +172,13 @@ class SearchFragment : Fragment() {
                 typeFilterValues.getContentIfNotHandled()
             )
         }
+        updateRemoteSearchViews(searchingRemotely)
         handleFailures(failure)
+    }
+
+    private fun updateRemoteSearchViews(searchingRemotely: Boolean) {
+        binding.searchRemotelyProgressBar.isVisible = searchingRemotely
+        binding.searchRemotelyText.isVisible = searchingRemotely
     }
 
     private fun updateInitialStateViews(inInitialState: Boolean) {

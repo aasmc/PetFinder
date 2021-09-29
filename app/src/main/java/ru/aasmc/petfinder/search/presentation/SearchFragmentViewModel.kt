@@ -10,22 +10,27 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.subjects.BehaviorSubject
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import ru.aasmc.logging.Logger
 import ru.aasmc.petfinder.common.domain.model.NoMoreAnimalsException
 import ru.aasmc.petfinder.common.domain.model.animal.Animal
 import ru.aasmc.petfinder.common.domain.model.pagination.Pagination
 import ru.aasmc.petfinder.common.presentation.model.mappers.UiAnimalMapper
 import ru.aasmc.petfinder.common.utils.DispatchersProvider
 import ru.aasmc.petfinder.common.utils.createExceptionHandler
+import ru.aasmc.petfinder.search.domain.model.SearchParameters
 import ru.aasmc.petfinder.search.domain.model.SearchResults
 import ru.aasmc.petfinder.search.domain.usecases.GetSearchFilters
 import ru.aasmc.petfinder.search.domain.usecases.SearchAnimals
+import ru.aasmc.petfinder.search.domain.usecases.SearchAnimalsRemotely
 import javax.inject.Inject
 
 @HiltViewModel
 class SearchFragmentViewModel @Inject constructor(
     private val searchAnimals: SearchAnimals,
+    private val searchAnimalsRemotely: SearchAnimalsRemotely,
     private val getSearchFilters: GetSearchFilters,
     private val uiAnimalMapper: UiAnimalMapper,
     private val dispatchersProvider: DispatchersProvider,
@@ -40,6 +45,7 @@ class SearchFragmentViewModel @Inject constructor(
     private val ageSubject = BehaviorSubject.createDefault("")
     private val typeSubject = BehaviorSubject.createDefault("")
 
+    private var remoteSearchJob: Job = Job()
     private var currentPage = 0
 
     init {
@@ -106,9 +112,38 @@ class SearchFragmentViewModel @Inject constructor(
 
         if (animals.isEmpty()) {
             // search remotely
+            onEmptyCacheResults(searchParameters)
         } else {
             onAnimalList(animals)
         }
+    }
+
+    private fun onEmptyCacheResults(searchParameters: SearchParameters) {
+        // update the state to searching remotely, which shows a [ProgressBar]
+        // and a warning message
+        _state.value = state.value!!.updateToSearchingRemotely()
+        searchRemotely(searchParameters)
+    }
+
+    /**
+     * This is a one-shot operation, as any network operation should be. We have the
+     * search results Flowable up and running. This operation will store any
+     * results in the database, triggering the Flowable to display them.
+     */
+    private fun searchRemotely(searchParameters: SearchParameters) {
+        val exceptionHandler = createExceptionHandler(message = "Failed to search remotely")
+
+        remoteSearchJob = viewModelScope.launch(exceptionHandler) {
+            val pagination = withContext(dispatchersProvider.io()) {
+                Logger.d("Searching remotely...")
+
+                searchAnimalsRemotely(++currentPage, searchParameters)
+            }
+
+            onPaginationInfoObtained(pagination)
+        }
+
+        remoteSearchJob.invokeOnCompletion { it?.printStackTrace() }
     }
 
 
