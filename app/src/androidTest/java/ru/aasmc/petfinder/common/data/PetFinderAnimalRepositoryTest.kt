@@ -28,21 +28,26 @@ import ru.aasmc.petfinder.common.data.cache.PetFinderDatabase
 import ru.aasmc.petfinder.common.data.cache.RoomCache
 import ru.aasmc.petfinder.common.data.di.CacheModule
 import ru.aasmc.petfinder.common.data.di.PreferencesModule
+import ru.aasmc.petfinder.common.data.di.TestPreferencesModule
 import ru.aasmc.petfinder.common.data.preferences.FakePreferences
 import ru.aasmc.petfinder.common.data.preferences.Preferences
+import ru.aasmc.petfinder.common.di.ActivityRetainedModule
 import ru.aasmc.petfinder.common.domain.repositories.AnimalRepository
 import javax.inject.Inject
 
 @HiltAndroidTest // Hilt will know it has to inject some dependencies here
 @UninstallModules(
     PreferencesModule::class,
-    CacheModule::class
+    TestPreferencesModule::class,
+    CacheModule::class,
+    ActivityRetainedModule::class
 ) // Tell Hilt not to load original Preferences dependency
 class PetFinderAnimalRepositoryTest {
 
     private val fakeServer = FakeServer()
     private lateinit var repository: AnimalRepository
     private lateinit var api: PetFinderApi
+    private lateinit var cache: Cache
 
     /**
      * Hilt rule that tells Hilt when to inject the dependencies.
@@ -57,8 +62,6 @@ class PetFinderAnimalRepositoryTest {
      */
     @get:Rule
     var instantTaskExecutorRule = InstantTaskExecutorRule()
-
-    lateinit var cache: Cache
 
     @Inject
     lateinit var petFinderDatabase: PetFinderDatabase
@@ -75,21 +78,6 @@ class PetFinderAnimalRepositoryTest {
     @BindValue // handles the replacement and injection
     @JvmField // need to add this annotation due to Hilt limitations. Possibly will be excluded in future
     val preferences: Preferences = FakePreferences()
-
-    @Module
-    @InstallIn(SingletonComponent::class)
-    object TestCacheModule {
-
-        @Provides
-        fun provideRoomDatabase(): PetFinderDatabase {
-            return Room.inMemoryDatabaseBuilder(
-                InstrumentationRegistry.getInstrumentation().context,
-                PetFinderDatabase::class.java
-            )
-                .allowMainThreadQueries()
-                .build()
-        }
-    }
 
     @Before
     fun setup() {
