@@ -1,6 +1,6 @@
 package ru.aasmc.petfinder.common.presentation
 
-class Event<out T>(private val content: T) {
+data class Event<out T>(private val content: T) {
     private var hasBeenHandled: Boolean = false
 
     /**

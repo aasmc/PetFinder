@@ -125,7 +125,7 @@ class FakeRepository @Inject constructor() : AnimalRepository {
     }
 
     override suspend fun storeAnimals(animals: List<AnimalWithDetails>) {
-        mutableRemoteAnimals.addAll(animals)
+        mutableLocalAnimals.addAll(animals)
     }
 
     override suspend fun getAnimalTypes(): List<String> {
@@ -156,6 +156,7 @@ class FakeRepository @Inject constructor() : AnimalRepository {
         numberOfItems: Int
     ): PaginatedAnimals {
         val (name, age, type) = searchParameters
+
         val matches = mutableRemoteAnimals.filter {
             it.name == name && it.details.age.name == age && it.type == type
         }
