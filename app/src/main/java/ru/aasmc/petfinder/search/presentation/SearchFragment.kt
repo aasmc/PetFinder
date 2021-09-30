@@ -182,7 +182,6 @@ class SearchFragment : Fragment() {
         binding.noSearchResultsText.isVisible = noResultsState
     }
 
-
     private fun updateRemoteSearchViews(searchingRemotely: Boolean) {
         binding.searchRemotelyProgressBar.isVisible = searchingRemotely
         binding.searchRemotelyText.isVisible = searchingRemotely
