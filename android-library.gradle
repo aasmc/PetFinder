@@ -10,7 +10,7 @@ android {
     defaultConfig {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        testInstrumentationRunner "ru.aasmc.petfinder.HiltTestRunner"
+        testInstrumentationRunner "ru.aasmc.petfinder.common.HiltTestRunner"
     }
 
     compileOptions {
@@ -48,9 +48,6 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     implementation project(":logging")
-
-    // Kotlin
-//    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 
     // Constraint Layout
     implementation "androidx.constraintlayout:constraintlayout:$constraint_layout_version"

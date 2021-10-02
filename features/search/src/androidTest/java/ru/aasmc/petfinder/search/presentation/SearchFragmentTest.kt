@@ -11,10 +11,14 @@ import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.BoundedMatcher
 import androidx.test.espresso.matcher.ViewMatchers
+import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
+import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.hamcrest.Description
 import org.hamcrest.Matcher
@@ -26,16 +30,20 @@ import org.junit.runner.RunWith
 import ru.aasmc.petfinder.common.RxImmediateSchedulerRule
 import ru.aasmc.petfinder.common.TestCoroutineRule
 import ru.aasmc.petfinder.common.data.FakeRepository
+import ru.aasmc.petfinder.common.data.di.ApiModule
 import ru.aasmc.petfinder.common.data.di.CacheModule
 import ru.aasmc.petfinder.common.data.di.PreferencesModule
 import ru.aasmc.petfinder.common.di.ActivityRetainedModule
+import ru.aasmc.petfinder.common.domain.repositories.AnimalRepository
+import ru.aasmc.petfinder.common.utils.CoroutineDispatchersProvider
+import ru.aasmc.petfinder.common.utils.DispatchersProvider
 import ru.aasmc.petfinder.search.launchFragmentInHiltContainer
 import ru.aasmc.petfinder.search.R
 
 @ExperimentalCoroutinesApi
 @RunWith(AndroidJUnit4::class)
 @HiltAndroidTest
-@UninstallModules(PreferencesModule::class, CacheModule::class, ActivityRetainedModule::class)
+@UninstallModules(ApiModule::class, PreferencesModule::class, CacheModule::class, ActivityRetainedModule::class)
 class SearchFragmentTest {
 
     @get:Rule
@@ -50,6 +58,15 @@ class SearchFragmentTest {
     @get:Rule
     val rxImmediateSchedulerRule = RxImmediateSchedulerRule()
 
+    @BindValue
+    val dispatcher: DispatchersProvider = CoroutineDispatchersProvider()
+
+    @BindValue
+    val compositeDisposable: CompositeDisposable = CompositeDisposable()
+
+    @BindValue
+    val repository: AnimalRepository = FakeRepository()
+
     @Before
     fun setup() {
         hiltRule.inject()
@@ -57,31 +74,24 @@ class SearchFragmentTest {
 
     @Test
     fun searchFragment_testSearch_success() {
-        // given
-        val nameToSearch = FakeRepository().remotelySearchableAnimal.name
+        // Given
+        val nameToSearch = (repository as FakeRepository).remotelySearchableAnimal.name
         launchFragmentInHiltContainer<SearchFragment>()
 
-        // when
-        with(Espresso.onView(ViewMatchers.withId(R.id.search))) {
+        // When
+        with (Espresso.onView(withId(R.id.search))) {
             perform(ViewActions.click())
-            perform(typeSearchViewTest(nameToSearch))
+            perform(typeSearchViewText(nameToSearch))
         }
-        // then
-        with(Espresso.onView(ViewMatchers.withId(R.id.searchRecyclerView))) {
+
+        // Then
+        with (Espresso.onView(withId(R.id.searchRecyclerView))) {
             check(ViewAssertions.matches(childCountIs(1)))
-            check(
-                ViewAssertions.matches(
-                    ViewMatchers.hasDescendant(
-                        ViewMatchers.withText(
-                            nameToSearch
-                        )
-                    )
-                )
-            )
+            check(ViewAssertions.matches(ViewMatchers.hasDescendant(withText(nameToSearch))))
         }
     }
 
-    private fun typeSearchViewTest(text: String): ViewAction {
+    private fun typeSearchViewText(text: String): ViewAction {
         return object : ViewAction {
             override fun getDescription(): String {
                 return "Type in SearchView"
@@ -101,7 +111,7 @@ class SearchFragmentTest {
     }
 
     private fun childCountIs(expectedChildCount: Int): Matcher<View> {
-        return object : BoundedMatcher<View, RecyclerView>(RecyclerView::class.java) {
+        return object: BoundedMatcher<View, RecyclerView>(RecyclerView::class.java) {
             override fun describeTo(description: Description?) {
                 description?.appendText("RecyclerView with item count: $expectedChildCount")
             }
@@ -111,5 +121,4 @@ class SearchFragmentTest {
             }
         }
     }
-
 }
