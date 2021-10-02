@@ -5,8 +5,9 @@ import ru.aasmc.petfinder.common.domain.model.animal.Animal
 import ru.aasmc.petfinder.common.domain.model.animal.AnimalWithDetails
 import ru.aasmc.petfinder.common.domain.model.animal.details.Age
 import ru.aasmc.petfinder.common.domain.model.pagination.PaginatedAnimals
-import ru.aasmc.petfinder.search.domain.model.SearchParameters
-import ru.aasmc.petfinder.search.domain.model.SearchResults
+import ru.aasmc.petfinder.common.domain.model.search.SearchParameters
+import ru.aasmc.petfinder.common.domain.model.search.SearchResults
+
 
 interface AnimalRepository {
 
@@ -27,4 +28,7 @@ interface AnimalRepository {
         searchParameters: SearchParameters,
         numberOfItems: Int
     ): PaginatedAnimals
+
+    suspend fun storeOnBoardingData(postcode: String, distance: Int)
+    suspend fun onboardingIsComplete(): Boolean
 }

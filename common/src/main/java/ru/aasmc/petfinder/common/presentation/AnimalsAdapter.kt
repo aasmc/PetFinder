@@ -5,9 +5,10 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import ru.aasmc.petfinder.common.databinding.RecyclerViewAnimalItemBinding
 import ru.aasmc.petfinder.common.presentation.model.UIAnimal
 import ru.aasmc.petfinder.common.utils.setImage
-import ru.aasmc.petfinder.databinding.RecyclerViewAnimalItemBinding
+
 
 class AnimalsAdapter : ListAdapter<UIAnimal, AnimalsAdapter.AnimalsViewHolder>(ITEM_COMPARATOR) {
 

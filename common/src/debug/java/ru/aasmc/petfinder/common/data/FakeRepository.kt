@@ -15,7 +15,6 @@ import ru.aasmc.petfinder.common.domain.model.pagination.Pagination
 import ru.aasmc.petfinder.common.domain.model.search.SearchParameters
 import ru.aasmc.petfinder.common.domain.model.search.SearchResults
 import ru.aasmc.petfinder.common.domain.repositories.AnimalRepository
-
 import javax.inject.Inject
 
 class FakeRepository @Inject constructor() : AnimalRepository {
@@ -166,6 +165,14 @@ class FakeRepository @Inject constructor() : AnimalRepository {
             matches,
             Pagination(currentPage = 1, totalPages = 1)
         )
+    }
+
+    override suspend fun storeOnBoardingData(postcode: String, distance: Int) {
+        // no need here
+    }
+
+    override suspend fun onboardingIsComplete(): Boolean {
+        return true
     }
 
     private fun AnimalWithDetails.toAnimal(): Animal {

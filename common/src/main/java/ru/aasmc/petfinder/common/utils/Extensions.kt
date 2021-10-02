@@ -7,7 +7,7 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import ru.aasmc.logging.Logger
-import ru.aasmc.petfinder.R
+import ru.aasmc.petfinder.common.R
 
 fun ImageView.setImage(url: String) {
     Glide.with(this.context)

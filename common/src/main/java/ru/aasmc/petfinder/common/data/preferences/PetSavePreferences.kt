@@ -3,6 +3,8 @@ package ru.aasmc.petfinder.common.data.preferences
 import android.content.Context
 import android.content.SharedPreferences
 import dagger.hilt.android.qualifiers.ApplicationContext
+import ru.aasmc.petfinder.common.data.preferences.PreferencesConstants.KEY_MAX_DISTANCE
+import ru.aasmc.petfinder.common.data.preferences.PreferencesConstants.KEY_POSTCODE
 import ru.aasmc.petfinder.common.data.preferences.PreferencesConstants.KEY_TOKEN
 import ru.aasmc.petfinder.common.data.preferences.PreferencesConstants.KEY_TOKEN_EXPIRATION_TIME
 import ru.aasmc.petfinder.common.data.preferences.PreferencesConstants.KEY_TOKEN_TYPE
@@ -48,6 +50,22 @@ class PetSavePreferences @Inject constructor(
             remove(KEY_TOKEN_EXPIRATION_TIME)
             remove(KEY_TOKEN_TYPE)
         }
+    }
+
+    override fun getPostcode(): String {
+        return preferences.getString(KEY_POSTCODE, "").orEmpty()
+    }
+
+    override fun putPostcode(postcode: String) {
+        edit { putString(KEY_POSTCODE, postcode) }
+    }
+
+    override fun getMaxDistanceAllowedToGetAnimals(): Int {
+        return preferences.getInt(KEY_MAX_DISTANCE, 0)
+    }
+
+    override fun putMaxDistanceAllowedToGetAnimals(distance: Int) {
+        edit { putInt(KEY_MAX_DISTANCE, distance) }
     }
 
     private inline fun edit(block: SharedPreferences.Editor.() -> Unit) {
