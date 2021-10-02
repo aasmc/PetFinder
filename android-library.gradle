@@ -10,7 +10,7 @@ android {
     defaultConfig {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        testInstrumentationRunner "ru.aasmc.petfinder.common.HiltTestRunner"
+        testInstrumentationRunner "ru.aasmc.petfinder.HiltTestRunner"
     }
 
     compileOptions {

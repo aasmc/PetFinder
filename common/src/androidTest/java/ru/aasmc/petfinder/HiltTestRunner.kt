@@ -1,8 +1,9 @@
-package ru.aasmc.petfinder.common
+package ru.aasmc.petfinder
 
 import android.app.Application
 import android.content.Context
 import androidx.test.runner.AndroidJUnitRunner
+import ru.aasmc.petfinder.common.InstrumentedTestApplication_Application
 
 
 // A custom runner to set up the instrumented application class for tests.
