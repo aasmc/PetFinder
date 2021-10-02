@@ -105,7 +105,7 @@ dependencies {
     implementation project(":logging")
 
     // lifecycle
-    def lifecycle = "2.4.0-beta01"
+    def lifecycle = "2.4.0-rc01"
     // ViewModel
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle"
     // LiveData
