@@ -4,18 +4,21 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.net.toUri
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.NavDeepLinkRequest
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import ru.aasmc.petfinder.R
-import ru.aasmc.petfinder.databinding.FragmentOnboardingBinding
+import ru.aasmc.petfinder.onboarding.R
+import ru.aasmc.petfinder.onboarding.databinding.FragmentOnboardingBinding
 
 @AndroidEntryPoint
 class OnboardingFragment : Fragment() {
@@ -98,7 +101,16 @@ class OnboardingFragment : Fragment() {
     }
 
     private fun navigateToAnimalsNearYou() {
-        findNavController().navigate(R.id.action_onboardingFragment_to_animalsNearYou)
+        val deepLink = NavDeepLinkRequest.Builder
+            .fromUri("petfinder://animalsnearyou".toUri())
+            .build()
+
+        val navOptions = NavOptions.Builder()
+            .setPopUpTo(R.id.nav_onboarding, true)
+            .setEnterAnim(R.anim.nav_default_enter_anim)
+            .setExitAnim(R.anim.nav_default_exit_anim)
+            .build()
+        findNavController().navigate(deepLink, navOptions)
     }
 
     override fun onDestroyView() {

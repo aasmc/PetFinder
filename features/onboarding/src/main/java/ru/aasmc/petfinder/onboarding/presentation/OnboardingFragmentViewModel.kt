@@ -9,9 +9,9 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import ru.aasmc.petfinder.R
 import ru.aasmc.petfinder.common.utils.DispatchersProvider
 import ru.aasmc.petfinder.common.utils.createExceptionHandler
+import ru.aasmc.petfinder.onboarding.R
 import ru.aasmc.petfinder.onboarding.domain.usecases.StoreOnboardingData
 import javax.inject.Inject
 

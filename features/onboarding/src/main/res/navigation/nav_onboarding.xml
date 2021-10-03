@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    app:startDestination="@id/onboardingFragment"
+    android:id="@+id/nav_onboarding">
+    <fragment
+        android:id="@+id/onboardingFragment"
+        android:name="ru.aasmc.petfinder.onboarding.presentation.OnboardingFragment"
+        tools:layout="@layout/fragment_onboarding"
+        android:label="@string/onboarding_screen_label">
+    </fragment>
+</navigation>

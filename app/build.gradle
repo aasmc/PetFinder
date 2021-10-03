@@ -52,8 +52,8 @@ dependencies {
     implementation project(":features:animalsnearyou")
     implementation project(":features:search")
     implementation project(":common")
-//    implementation project(":commonn")
     implementation project(":logging")
+    implementation project(":features:onboarding")
 
     // Support Libraries and material
     implementation "androidx.appcompat:appcompat:$appcompat_version"
@@ -73,13 +73,5 @@ dependencies {
     implementation "com.squareup.okhttp3:logging-interceptor:$okHttp_version"
     implementation "androidx.room:room-runtime:$room_version"
     implementation "io.reactivex.rxjava2:rxjava:$rxjava_version"
-
-    // lifecycle
-    def lifecycle = "2.4.0-rc01"
-    // ViewModel
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle"
-    // LiveData
-    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle"
-    implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle"
 
 }

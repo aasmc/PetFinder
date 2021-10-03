@@ -38,7 +38,7 @@ class MainActivityViewModel @Inject constructor(
                 if (onboardingIsComplete()) {
                     R.id.nav_animalsnearyou
                 } else {
-                    R.id.onboardingFragment
+                    R.id.nav_onboarding
                 }
             }
 
