@@ -17,6 +17,8 @@ interface AnimalRepository {
 
     suspend fun storeAnimals(animals: List<AnimalWithDetails>)
 
+    suspend fun getAnimal(animalId: Long): AnimalWithDetails
+
     suspend fun getAnimalTypes(): List<String>
 
     fun getAnimalAges(): List<Age>

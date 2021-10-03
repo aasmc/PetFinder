@@ -1,4 +1,4 @@
-package ru.aasmc.petfinder.animalsnearyou.presentation
+package ru.aasmc.petfinder.animalsnearyou.presentation.main
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
@@ -43,12 +44,6 @@ class AnimalsNearYouFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupUI()
-
-        requestInitialAnimalsList()
-    }
-
-    private fun requestInitialAnimalsList() {
-        viewModel.onEvent(AnimalsNearYouEvent.RequestInitialAnimalsList)
     }
 
     private fun setupUI() {
@@ -60,7 +55,12 @@ class AnimalsNearYouFragment : Fragment() {
     }
 
     private fun createAdapter(): AnimalsAdapter {
-        return AnimalsAdapter()
+        return AnimalsAdapter().apply {
+            setOnAnimalClickListener { animalId ->
+                val action = AnimalsNearYouFragmentDirections.actionAnimalsNearYouToDetails(animalId)
+                findNavController().navigate(action)
+            }
+        }
     }
 
     private fun setupRecyclerView(animalsNearYouAdapter: AnimalsAdapter) {

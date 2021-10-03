@@ -1,4 +1,4 @@
-package ru.aasmc.petfinder.animalsnearyou.presentation
+package ru.aasmc.petfinder.animalsnearyou.presentation.main
 
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView

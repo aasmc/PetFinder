@@ -12,13 +12,23 @@ import ru.aasmc.petfinder.common.utils.setImage
 
 class AnimalsAdapter : ListAdapter<UIAnimal, AnimalsAdapter.AnimalsViewHolder>(ITEM_COMPARATOR) {
 
+    private var animalClickListener: AnimalClickListener? = null
+
     inner class AnimalsViewHolder(
         private val binding: RecyclerViewAnimalItemBinding
     ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: UIAnimal) {
             binding.name.text = item.name
             binding.photo.setImage(item.photo)
+
+            binding.root.setOnClickListener {
+                animalClickListener?.onAnimalClicked(item.id)
+            }
         }
+    }
+
+    fun setOnAnimalClickListener(animalClickListener: AnimalClickListener) {
+        this.animalClickListener = animalClickListener
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AnimalsViewHolder {
@@ -42,5 +52,8 @@ private val ITEM_COMPARATOR = object : DiffUtil.ItemCallback<UIAnimal>() {
     override fun areContentsTheSame(oldItem: UIAnimal, newItem: UIAnimal): Boolean {
         return oldItem == newItem
     }
+}
 
+fun interface AnimalClickListener {
+    fun onAnimalClicked(animalId: Long)
 }

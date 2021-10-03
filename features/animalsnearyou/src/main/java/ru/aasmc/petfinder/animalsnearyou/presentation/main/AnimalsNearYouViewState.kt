@@ -1,4 +1,4 @@
-package ru.aasmc.petfinder.animalsnearyou.presentation
+package ru.aasmc.petfinder.animalsnearyou.presentation.main
 
 import ru.aasmc.petfinder.common.presentation.Event
 import ru.aasmc.petfinder.common.presentation.model.UIAnimal

@@ -1,4 +1,4 @@
-package ru.aasmc.petfinder.animalsnearyou.presentation
+package ru.aasmc.petfinder.animalsnearyou.presentation.main
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -53,9 +53,6 @@ class AnimalsNearYouFragmentViewModel @Inject constructor(
 
     fun onEvent(event: AnimalsNearYouEvent) {
         when (event) {
-            is AnimalsNearYouEvent.RequestInitialAnimalsList -> {
-                loadAnimals()
-            }
             is AnimalsNearYouEvent.RequestMoreAnimals -> {
                 loadNextAnimalPage()
             }
@@ -64,12 +61,18 @@ class AnimalsNearYouFragmentViewModel @Inject constructor(
 
     private fun subscribeToAnimalUpdates() {
         getAnimals()
+            .doOnNext { if (hasNoAnimalsStoredButCanLoadMore(it)) loadNextAnimalPage() }
+            .filter { it.isNotEmpty() }
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
                 { onNewAnimalList(it) },
                 { onFailure(it) }
             )
             .addTo(compositeDisposable)
+    }
+
+    private fun hasNoAnimalsStoredButCanLoadMore(animals: List<Animal>): Boolean {
+        return animals.isEmpty() && !state.value!!.noMoreAnimalsNearby
     }
 
     private fun onNewAnimalList(animals: List<Animal>) {

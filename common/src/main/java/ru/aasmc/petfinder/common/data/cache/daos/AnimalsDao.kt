@@ -11,6 +11,10 @@ abstract class AnimalsDao {
     @Query("SELECT * FROM animals")
     abstract fun getAllAnimals(): Flowable<List<CachedAnimalAggregate>>
 
+    @Transaction
+    @Query("SELECT * FROM animals WHERE animalId IS :animalId")
+    abstract suspend fun getAnimal(animalId: Long): CachedAnimalAggregate
+
     /**
      * We can't insert a CachedAnimalAggregate because it is not a Room Entity,
      * but we can decompose it into its @Entity-annotated components and pass them

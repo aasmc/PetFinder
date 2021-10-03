@@ -54,6 +54,7 @@ dependencies {
     implementation project(":common")
     implementation project(":logging")
     implementation project(":features:onboarding")
+    implementation project(":features:sharing")
 
     // Support Libraries and material
     implementation "androidx.appcompat:appcompat:$appcompat_version"
