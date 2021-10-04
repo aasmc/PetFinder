@@ -2,6 +2,7 @@ package ru.aasmc.petfinder.animalsnearyou.presentation.animaldetails
 
 import android.os.Bundle
 import android.view.*
+import androidx.annotation.RawRes
 import androidx.core.net.toUri
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -62,11 +63,9 @@ class AnimalDetailsFragment : Fragment() {
     private fun navigateToSharing() {
         val animalId = requireArguments().getLong(ANIMAL_ID)
 
-        val deepLink = NavDeepLinkRequest.Builder
-            .fromUri("petfinder://sharing/$animalId".toUri())
-            .build()
+        val directions = AnimalDetailsFragmentDirections.actionDetailsToSharing(animalId)
 
-        findNavController().navigate(deepLink)
+        findNavController().navigate(directions)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -110,6 +109,14 @@ class AnimalDetailsFragment : Fragment() {
 
     private fun displayLoading() {
         binding.group.isVisible = false
+    }
+
+    private fun startAnimation(@RawRes animationRes: Int) {
+        binding.loader.apply {
+            isVisible = true
+            setAnimation(animationRes)
+            playAnimation()
+        }
     }
 
     override fun onDestroyView() {

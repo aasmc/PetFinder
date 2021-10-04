@@ -107,4 +107,8 @@ dependencies {
     debugImplementation ("androidx.fragment:fragment-testing:$fragment_testing_version") {
         exclude group: 'androidx.test', module: 'monitor'
     }
+
+    implementation "com.airbnb.android:lottie:3.4.2"
+
+    implementation "androidx.dynamicanimation:dynamicanimation:1.0.0"
 }

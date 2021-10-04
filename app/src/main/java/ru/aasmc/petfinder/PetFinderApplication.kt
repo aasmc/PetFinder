@@ -1,11 +1,11 @@
 package ru.aasmc.petfinder
 
-import android.app.Application
+import com.google.android.play.core.splitcompat.SplitCompatApplication
 import dagger.hilt.android.HiltAndroidApp
 import ru.aasmc.logging.Logger
 
 @HiltAndroidApp
-class PetFinderApplication : Application() {
+class PetFinderApplication : SplitCompatApplication() {
 
     override fun onCreate() {
         super.onCreate()

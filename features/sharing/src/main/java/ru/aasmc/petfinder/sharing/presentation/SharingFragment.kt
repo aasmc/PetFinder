@@ -11,23 +11,45 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import ru.aasmc.petfinder.common.utils.setImage
+import ru.aasmc.petfinder.di.SharingModuleDependencies
 import ru.aasmc.petfinder.sharing.databinding.FragmentSharingBinding
+import ru.aasmc.petfinder.sharing.di.DaggerSharingComponent
+import ru.aasmc.petfinder.sharing.di.ViewModelFactory
+import javax.inject.Inject
 
-@AndroidEntryPoint
 class SharingFragment : Fragment() {
 
     companion object {
         const val ANIMAL_ID = "id"
     }
 
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
+
     private var _binding: FragmentSharingBinding? = null
     private val binding
         get() = _binding!!
 
-    private val viewModel by viewModels<SharingFragmentViewModel>()
+    private val viewModel by viewModels<SharingFragmentViewModel> { viewModelFactory }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        DaggerSharingComponent.builder()
+            .context(requireActivity())
+            .moduleDependencies(
+                EntryPointAccessors.fromApplication(
+                    requireActivity().applicationContext,
+                    SharingModuleDependencies::class.java
+                )
+            )
+            .build()
+            .inject(this)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
