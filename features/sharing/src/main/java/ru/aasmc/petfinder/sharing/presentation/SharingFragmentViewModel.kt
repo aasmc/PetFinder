@@ -1,20 +1,20 @@
 package ru.aasmc.petfinder.sharing.presentation
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxkotlin.addTo
+import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import ru.aasmc.petfinder.common.domain.usecases.GetAnimalDetails
-import ru.aasmc.petfinder.common.utils.DispatchersProvider
 import ru.aasmc.petfinder.sharing.presentation.model.mappers.UiAnimalToShareMapper
 import javax.inject.Inject
 
 class SharingFragmentViewModel @Inject constructor(
     private val getAnimalDetails: GetAnimalDetails,
     private val uiAnimalToShareMapper: UiAnimalToShareMapper,
-    private val dispatchersProvider: DispatchersProvider
+    private val compositeDisposable: CompositeDisposable
 ) : ViewModel() {
 
     private val _viewState = MutableStateFlow(SharingViewState())
@@ -28,14 +28,23 @@ class SharingFragmentViewModel @Inject constructor(
     }
 
     private fun getAnimalToShare(animalId: Long) {
-        viewModelScope.launch {
-            val animal = withContext(dispatchersProvider.io()) {
-                getAnimalDetails(animalId)
-            }
+        getAnimalDetails(animalId)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                {
+                    _viewState.value = viewState.value.copy(
+                        animalToShare = uiAnimalToShareMapper.mapToView(it)
+                    )
+                },
+                {
+                    // ignore throwable
+                }
+            ).addTo(compositeDisposable)
+    }
 
-            _viewState.value = viewState.value.copy(
-                animalToShare = uiAnimalToShareMapper.mapToView(animal)
-            )
-        }
+    override fun onCleared() {
+        super.onCleared()
+        compositeDisposable.clear()
     }
 }

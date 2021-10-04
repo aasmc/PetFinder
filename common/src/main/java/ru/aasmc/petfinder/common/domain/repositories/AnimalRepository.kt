@@ -1,6 +1,7 @@
 package ru.aasmc.petfinder.common.domain.repositories
 
 import io.reactivex.Flowable
+import io.reactivex.Single
 import ru.aasmc.petfinder.common.domain.model.animal.Animal
 import ru.aasmc.petfinder.common.domain.model.animal.AnimalWithDetails
 import ru.aasmc.petfinder.common.domain.model.animal.details.Age
@@ -17,7 +18,7 @@ interface AnimalRepository {
 
     suspend fun storeAnimals(animals: List<AnimalWithDetails>)
 
-    suspend fun getAnimal(animalId: Long): AnimalWithDetails
+    fun getAnimal(animalId: Long): Single<AnimalWithDetails>
 
     suspend fun getAnimalTypes(): List<String>
 

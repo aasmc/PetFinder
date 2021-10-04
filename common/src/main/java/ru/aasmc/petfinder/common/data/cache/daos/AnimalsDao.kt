@@ -2,6 +2,7 @@ package ru.aasmc.petfinder.common.data.cache.daos
 
 import androidx.room.*
 import io.reactivex.Flowable
+import io.reactivex.Single
 import ru.aasmc.petfinder.common.data.cache.model.cachedanimal.*
 
 @Dao
@@ -13,7 +14,7 @@ abstract class AnimalsDao {
 
     @Transaction
     @Query("SELECT * FROM animals WHERE animalId IS :animalId")
-    abstract suspend fun getAnimal(animalId: Long): CachedAnimalAggregate
+    abstract fun getAnimal(animalId: Long): Single<CachedAnimalAggregate>
 
     /**
      * We can't insert a CachedAnimalAggregate because it is not a Room Entity,
@@ -21,7 +22,7 @@ abstract class AnimalsDao {
      * into this method. Since they are all Room Entities, Room will know how to insert them.
      */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract suspend fun insertAnimalAggregate(
+    abstract fun insertAnimalAggregate(
         animal: CachedAnimalWithDetails,
         photos: List<CachedPhoto>,
         videos: List<CachedVideo>,
@@ -33,7 +34,7 @@ abstract class AnimalsDao {
      * scenario it will be the reason for backpressure, when the Flowable will emit objects faster,
      * than Room will be able to consume them.
      */
-    suspend fun insertAnimalsWithDetails(animalAggregates: List<CachedAnimalAggregate>) {
+    fun insertAnimalsWithDetails(animalAggregates: List<CachedAnimalAggregate>) {
         for (animalAggregate in animalAggregates) {
             insertAnimalAggregate(
                 animal = animalAggregate.animal,

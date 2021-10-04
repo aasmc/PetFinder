@@ -4,9 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import dagger.Binds
 import dagger.Module
+import dagger.Provides
 import dagger.Reusable
 import dagger.hilt.migration.DisableInstallInCheck
 import dagger.multibindings.IntoMap
+import io.reactivex.disposables.CompositeDisposable
 import ru.aasmc.petfinder.common.data.PetFinderAnimalRepository
 import ru.aasmc.petfinder.common.domain.repositories.AnimalRepository
 import ru.aasmc.petfinder.common.utils.CoroutineDispatchersProvider
@@ -34,4 +36,10 @@ abstract class SharingModule {
     @Binds
     @Reusable
     abstract fun bindViewModelFactory(factory: ViewModelFactory): ViewModelProvider.Factory
+
+    companion object {
+
+        @Provides
+        fun provideCompositeDisposable() = CompositeDisposable()
+    }
 }

@@ -1,6 +1,7 @@
 package ru.aasmc.petfinder.common.data
 
 import io.reactivex.Flowable
+import io.reactivex.Single
 import retrofit2.HttpException
 import ru.aasmc.petfinder.common.data.api.PetFinderApi
 import ru.aasmc.petfinder.common.data.api.model.mappers.ApiAnimalMapper
@@ -75,11 +76,14 @@ class PetFinderAnimalRepository @Inject constructor(
         cache.storeNearbyAnimals(animals.map { CachedAnimalAggregate.fromDomain(it) })
     }
 
-    override suspend fun getAnimal(animalId: Long): AnimalWithDetails {
-        val (animal, photos, videos, tags) = cache.getAnimal(animalId)
-        val organization = cache.getOrganization(animal.organizationId)
-
-        return animal.toDomain(photos, videos, tags, organization)
+    override fun getAnimal(animalId: Long): Single<AnimalWithDetails> {
+        return cache.getAnimal(animalId)
+            .flatMap { animal ->
+                cache.getOrganization(animal.animal.organizationId)
+                    .map {
+                        animal.animal.toDomain(animal.photos, animal.videos, animal.tags, it)
+                    }
+            }
     }
 
     override suspend fun getAnimalTypes(): List<String> {
@@ -91,9 +95,12 @@ class PetFinderAnimalRepository @Inject constructor(
     }
 
     override fun searchCachedAnimalsBy(searchParameters: SearchParameters): Flowable<SearchResults> {
-        val (name, age, type) = searchParameters
 
-        return cache.searchAnimalsBy(name, age, type)
+        return cache.searchAnimalsBy(
+            searchParameters.uppercaseName,
+            searchParameters.uppercaseAge,
+            searchParameters.uppercaseType
+        )
             .distinctUntilChanged()
             .map { animalsList ->
                 animalsList.map { it.animal.toAnimalDomain(it.photos, it.videos, it.tags) }

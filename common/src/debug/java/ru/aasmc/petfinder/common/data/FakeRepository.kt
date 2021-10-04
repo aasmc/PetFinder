@@ -3,6 +3,7 @@ package ru.aasmc.petfinder.common.data
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.Observable
+import io.reactivex.Single
 import org.threeten.bp.LocalDateTime
 import ru.aasmc.petfinder.common.domain.model.animal.AdoptionStatus
 import ru.aasmc.petfinder.common.domain.model.animal.Animal
@@ -128,8 +129,10 @@ class FakeRepository @Inject constructor() : AnimalRepository {
         mutableLocalAnimals.addAll(animals)
     }
 
-    override suspend fun getAnimal(animalId: Long): AnimalWithDetails {
-        return mutableLocalAnimals.find { it.id == animalId }!!
+    override fun getAnimal(animalId: Long): Single<AnimalWithDetails> {
+        return Single.fromObservable {
+            mutableLocalAnimals.find { it.id == animalId }!!
+        }
     }
 
     override suspend fun getAnimalTypes(): List<String> {

@@ -33,6 +33,17 @@
                 android:name="id"
                 app:argType="long" />
         </action>
+        <action
+            android:id="@+id/action_details_to_secret"
+            app:destination="@id/secret" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/secret"
+        android:name="ru.aasmc.petfinder.animalsnearyou.presentation.easteregg.SecretFragment"
+        android:label="@string/secret_doggo"
+        tools:layout="@layout/fragment_secret">
+
     </fragment>
 
 </navigation>
