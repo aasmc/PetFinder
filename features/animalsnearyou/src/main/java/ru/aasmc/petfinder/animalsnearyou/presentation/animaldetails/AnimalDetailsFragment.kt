@@ -152,7 +152,10 @@ class AnimalDetailsFragment : Fragment() {
 
     @SuppressLint("ClickableViewAccessibility")
     private fun displayPetDetails(animalDetails: UIAnimalDetailed) {
-        binding.group.isVisible = true
+        binding.call.scaleX = 0.6f
+        binding.call.scaleY = 0.6f
+        binding.call.isVisible = true
+        binding.scrollView.isVisible = true
         stopAnimation()
         binding.name.text = animalDetails.name
         binding.description.text = animalDetails.description
@@ -213,13 +216,13 @@ class AnimalDetailsFragment : Fragment() {
 
     private fun displayError() {
         startAnimation(R.raw.lazy_cat)
-        binding.group.isVisible = false
+        binding.scrollView.isVisible = false
         Snackbar.make(requireView(), R.string.an_error_occurred, Snackbar.LENGTH_SHORT).show()
     }
 
     private fun displayLoading() {
         startAnimation(R.raw.happy_dog)
-        binding.group.isVisible = false
+        binding.scrollView.isVisible = false
     }
 
     private fun startAnimation(@RawRes animationRes: Int) {
