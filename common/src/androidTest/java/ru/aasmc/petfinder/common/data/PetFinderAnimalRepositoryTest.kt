@@ -27,6 +27,8 @@ import ru.aasmc.petfinder.common.data.preferences.FakePreferences
 import ru.aasmc.petfinder.common.data.preferences.Preferences
 import ru.aasmc.petfinder.common.di.ActivityRetainedModule
 import ru.aasmc.petfinder.common.domain.repositories.AnimalRepository
+import ru.aasmc.petfinder.common.utils.CoroutineDispatchersProvider
+import ru.aasmc.petfinder.common.utils.DispatchersProvider
 import javax.inject.Inject
 
 @HiltAndroidTest // Hilt will know it has to inject some dependencies here
@@ -100,7 +102,8 @@ class PetFinderAnimalRepositoryTest {
             cache,
             preferences,
             apiAnimalMapper,
-            apiPaginationMapper
+            apiPaginationMapper,
+            CoroutineDispatchersProvider()
         )
     }
 

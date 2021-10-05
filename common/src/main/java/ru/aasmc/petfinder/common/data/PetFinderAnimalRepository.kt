@@ -2,6 +2,8 @@ package ru.aasmc.petfinder.common.data
 
 import io.reactivex.Flowable
 import io.reactivex.Single
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
 import retrofit2.HttpException
 import ru.aasmc.petfinder.common.data.api.PetFinderApi
 import ru.aasmc.petfinder.common.data.api.model.mappers.ApiAnimalMapper
@@ -18,6 +20,7 @@ import ru.aasmc.petfinder.common.domain.model.pagination.PaginatedAnimals
 import ru.aasmc.petfinder.common.domain.model.search.SearchParameters
 import ru.aasmc.petfinder.common.domain.model.search.SearchResults
 import ru.aasmc.petfinder.common.domain.repositories.AnimalRepository
+import ru.aasmc.petfinder.common.utils.DispatchersProvider
 
 import javax.inject.Inject
 
@@ -26,9 +29,12 @@ class PetFinderAnimalRepository @Inject constructor(
     private val cache: Cache,
     private val preferences: Preferences,
     private val apiAnimalMapper: ApiAnimalMapper,
-    private val apiPaginationMapper: ApiPaginationMapper
+    private val apiPaginationMapper: ApiPaginationMapper,
+    dispatchersProvider: DispatchersProvider
 ) : AnimalRepository {
 
+    private val parentJob = SupervisorJob()
+    private val repositoryScope = CoroutineScope(parentJob + dispatchersProvider.io())
 
     override fun getAnimals(): Flowable<List<Animal>> {
         return cache.getNearbyAnimals()
@@ -97,9 +103,9 @@ class PetFinderAnimalRepository @Inject constructor(
     override fun searchCachedAnimalsBy(searchParameters: SearchParameters): Flowable<SearchResults> {
 
         return cache.searchAnimalsBy(
-            searchParameters.uppercaseName,
-            searchParameters.uppercaseAge,
-            searchParameters.uppercaseType
+            searchParameters.name,
+            searchParameters.age,
+            searchParameters.type
         )
             .distinctUntilChanged()
             .map { animalsList ->

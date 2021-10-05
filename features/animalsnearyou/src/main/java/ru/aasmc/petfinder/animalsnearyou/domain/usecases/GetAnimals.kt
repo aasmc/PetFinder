@@ -8,5 +8,5 @@ class GetAnimals @Inject constructor(
 ) {
 
     operator fun invoke() = animalRepository.getAnimals()
-        .filter { it.isNotEmpty() }
+
 }
