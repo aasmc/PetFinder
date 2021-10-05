@@ -36,14 +36,16 @@
       app:layout_constraintTop_toBottomOf="@id/image"
       tools:text="Wallace" />
 
-  <ImageView
+  <androidx.constraintlayout.utils.widget.ImageFilterView
       android:id="@+id/image"
       android:layout_width="match_parent"
       android:layout_height="0dp"
       android:contentDescription="@string/image_of_pet"
       android:scaleType="centerCrop"
       app:layout_constraintDimensionRatio="H,1:1"
-      app:layout_constraintTop_toTopOf="parent"/>
+      app:layout_constraintTop_toTopOf="parent"
+      app:roundPercent="0"
+      tools:src="@drawable/cute_doggo" />
 
   <androidx.core.widget.NestedScrollView
       android:id="@+id/scrollView"
@@ -212,16 +214,16 @@
             android:layout_margin="@dimen/half_default_margin"
             android:text="Playful" />
 
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/loader"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:lottie_loop="true" />
+
       </com.google.android.material.chip.ChipGroup>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
   </androidx.core.widget.NestedScrollView>
-
-  <com.airbnb.lottie.LottieAnimationView
-      android:id="@+id/loader"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      app:lottie_loop="true" />
 
   <com.google.android.material.floatingactionbutton.FloatingActionButton
       android:id="@+id/call"
