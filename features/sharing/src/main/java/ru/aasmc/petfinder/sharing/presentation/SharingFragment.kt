@@ -10,11 +10,10 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.snackbar.Snackbar
-import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import ru.aasmc.petfinder.common.utils.setImage
+import ru.aasmc.petfinder.common.utils.setImageWithCrossFade
 import ru.aasmc.petfinder.di.SharingModuleDependencies
 import ru.aasmc.petfinder.sharing.databinding.FragmentSharingBinding
 import ru.aasmc.petfinder.sharing.di.DaggerSharingComponent
@@ -89,7 +88,7 @@ class SharingFragment : Fragment() {
     private fun render(viewState: SharingViewState) {
         val (image, message) = viewState.animalToShare
 
-        binding.image.setImage(image)
+        binding.image.setImageWithCrossFade(image)
         binding.messageToShareEditText.setText(message)
     }
 

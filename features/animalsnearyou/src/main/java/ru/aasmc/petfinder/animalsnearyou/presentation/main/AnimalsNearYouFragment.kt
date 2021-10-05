@@ -17,7 +17,6 @@ import ru.aasmc.petfinder.animalsnearyou.databinding.FragmentAnimalsNearYouBindi
 import ru.aasmc.petfinder.common.presentation.AnimalsAdapter
 import ru.aasmc.petfinder.common.presentation.Event
 
-
 @AndroidEntryPoint
 class AnimalsNearYouFragment : Fragment() {
 

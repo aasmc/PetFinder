@@ -9,7 +9,6 @@ import android.graphics.drawable.Animatable
 import android.os.Bundle
 import android.view.*
 import androidx.annotation.RawRes
-import androidx.core.net.toUri
 import androidx.core.view.isVisible
 import androidx.dynamicanimation.animation.DynamicAnimation
 import androidx.dynamicanimation.animation.FlingAnimation
@@ -19,7 +18,6 @@ import androidx.dynamicanimation.animation.SpringForce.DAMPING_RATIO_HIGH_BOUNCY
 import androidx.dynamicanimation.animation.SpringForce.STIFFNESS_VERY_LOW
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.navigation.NavDeepLinkRequest
 import androidx.navigation.fragment.findNavController
 import com.airbnb.lottie.LottieProperty
 import com.airbnb.lottie.model.KeyPath
@@ -28,7 +26,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import ru.aasmc.petfinder.animalsnearyou.R
 import ru.aasmc.petfinder.animalsnearyou.databinding.FragmentDetailsBinding
 import ru.aasmc.petfinder.animalsnearyou.presentation.animaldetails.model.UIAnimalDetailed
-import ru.aasmc.petfinder.common.utils.setImage
+import ru.aasmc.petfinder.common.utils.setImageWithCrossFade
 import ru.aasmc.petfinder.common.utils.toEnglish
 
 @AndroidEntryPoint
@@ -159,7 +157,7 @@ class AnimalDetailsFragment : Fragment() {
         stopAnimation()
         binding.name.text = animalDetails.name
         binding.description.text = animalDetails.description
-        binding.image.setImage(animalDetails.photo)
+        binding.image.setImageWithCrossFade(animalDetails.photo)
         binding.sprayedNeutered.text = animalDetails.sprayNeutered.toEnglish()
         binding.specialNeeds.text = animalDetails.specialNeeds.toEnglish()
 

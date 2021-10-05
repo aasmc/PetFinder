@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import ru.aasmc.petfinder.common.databinding.RecyclerViewAnimalItemBinding
 import ru.aasmc.petfinder.common.presentation.model.UIAnimal
-import ru.aasmc.petfinder.common.utils.setImage
+import ru.aasmc.petfinder.common.utils.setImageWithCrossFade
 
 
 class AnimalsAdapter : ListAdapter<UIAnimal, AnimalsAdapter.AnimalsViewHolder>(ITEM_COMPARATOR) {
@@ -19,7 +19,7 @@ class AnimalsAdapter : ListAdapter<UIAnimal, AnimalsAdapter.AnimalsViewHolder>(I
     ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: UIAnimal) {
             binding.name.text = item.name
-            binding.photo.setImage(item.photo)
+            binding.photo.setImageWithCrossFade(item.photo)
 
             binding.root.setOnClickListener {
                 animalClickListener?.onAnimalClicked(item.id)
