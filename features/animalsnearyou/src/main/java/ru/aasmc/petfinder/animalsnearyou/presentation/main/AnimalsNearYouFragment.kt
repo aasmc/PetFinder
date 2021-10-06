@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
@@ -28,7 +29,7 @@ class AnimalsNearYouFragment : Fragment() {
 
     private var _binding: FragmentAnimalsNearYouBinding? = null
 
-    private val viewModel: AnimalsNearYouFragmentViewModel by viewModels()
+    private val viewModel: AnimalsNearYouFragmentViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -43,6 +44,16 @@ class AnimalsNearYouFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupUI()
+
+        observeLoggedIn()
+    }
+
+    private fun observeLoggedIn() {
+        viewModel.isLoggedIn.observe(viewLifecycleOwner) { loggedIn ->
+            if (loggedIn) {
+                requestMoreAnimals()
+            }
+        }
     }
 
     private fun setupUI() {
@@ -56,7 +67,8 @@ class AnimalsNearYouFragment : Fragment() {
     private fun createAdapter(): AnimalsAdapter {
         return AnimalsAdapter().apply {
             setOnAnimalClickListener { animalId ->
-                val action = AnimalsNearYouFragmentDirections.actionAnimalsNearYouToDetails(animalId)
+                val action =
+                    AnimalsNearYouFragmentDirections.actionAnimalsNearYouToDetails(animalId)
                 findNavController().navigate(action)
             }
         }

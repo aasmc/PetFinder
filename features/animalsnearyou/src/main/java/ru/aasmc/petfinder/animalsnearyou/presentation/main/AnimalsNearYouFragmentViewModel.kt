@@ -23,6 +23,7 @@ import ru.aasmc.petfinder.common.presentation.model.mappers.UiAnimalMapper
 import ru.aasmc.petfinder.common.utils.DispatchersProvider
 import ru.aasmc.petfinder.common.utils.createExceptionHandler
 import javax.inject.Inject
+import kotlin.math.log
 
 @HiltViewModel
 class AnimalsNearYouFragmentViewModel @Inject constructor(
@@ -45,6 +46,13 @@ class AnimalsNearYouFragmentViewModel @Inject constructor(
 
     var isLastPage = false
     var isLoadingMoreAnimals = false
+    private var _isLoggedIn: MutableLiveData<Boolean> = MutableLiveData()
+    val isLoggedIn: LiveData<Boolean>
+        get() = _isLoggedIn
+
+    fun setIsLoggedIn(loggedIn: Boolean) {
+        _isLoggedIn.value = loggedIn
+    }
 
     init {
         _state.value = AnimalsNearYouViewState()

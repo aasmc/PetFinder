@@ -12,4 +12,8 @@
     <string name="category">Category</string>
     <string name="permissionsLabel">Report Details Permission</string>
     <string name="permissionDetail">Access the report details</string>
+    <string name="report_a_concern">Report a concern</string>
+    <string name="email">Email</string>
+    <string name="login">Login</string>
+    <string name="signup">Signup</string>
 </resources>

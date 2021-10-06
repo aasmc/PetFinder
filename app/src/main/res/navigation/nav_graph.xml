@@ -13,5 +13,10 @@
         app:graphPackage="ru.aasmc.petfinder.sharing"
         app:graphResName="nav_sharing"
         app:moduleName="sharing" />
+    <fragment
+        android:id="@+id/report"
+        android:name="ru.aasmc.petfinder.report.ReportDetailFragment"
+        android:label="@string/report_a_concern"
+        tools:layout="@layout/fragment_report_detail" />
 
 </navigation>

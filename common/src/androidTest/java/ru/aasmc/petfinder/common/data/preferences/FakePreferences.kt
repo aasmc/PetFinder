@@ -52,4 +52,12 @@ class FakePreferences: Preferences {
         preferences[KEY_MAX_DISTANCE] = distance
     }
 
+    override fun putLastLoggedInTime() {
+
+    }
+
+    override fun getLastLoggedIn(): String? {
+        return null
+    }
+
 }

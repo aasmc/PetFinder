@@ -24,4 +24,8 @@ interface Preferences {
 
     fun putMaxDistanceAllowedToGetAnimals(distance: Int)
 
+    fun putLastLoggedInTime()
+
+    fun getLastLoggedIn(): String?
+
 }
