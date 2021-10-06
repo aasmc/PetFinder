@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
@@ -11,6 +12,7 @@ import io.reactivex.schedulers.Schedulers
 import ru.aasmc.petfinder.animalsnearyou.presentation.animaldetails.model.mappers.UiAnimalDetailsMapper
 import ru.aasmc.petfinder.common.domain.model.animal.AnimalWithDetails
 import ru.aasmc.petfinder.common.domain.usecases.GetAnimalDetails
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @HiltViewModel
@@ -31,7 +33,20 @@ class AnimalDetailsFragmentViewModel @Inject constructor(
     fun handleEvent(event: AnimalDetailsEvent) {
         when (event) {
             is AnimalDetailsEvent.LoadAnimalDetails -> subscribeToAnimalDetails(event.animalId)
+            is AnimalDetailsEvent.AdoptAnimal -> adoptAnimal()
         }
+    }
+
+    private fun adoptAnimal() {
+        compositeDisposable.add(
+            Observable.timer(2L, TimeUnit.SECONDS)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    _state.value =
+                        (_state.value as AnimalDetailsViewState.AnimalDetails?)?.copy(adopted = true)
+                }
+        )
     }
 
     private fun subscribeToAnimalDetails(animalId: Long) {
