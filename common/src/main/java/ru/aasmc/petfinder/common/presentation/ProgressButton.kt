@@ -9,6 +9,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
 import android.util.AttributeSet
+import android.util.TypedValue
 import android.view.View
 import android.view.animation.Animation
 import android.view.animation.LinearInterpolator
@@ -20,15 +21,17 @@ import ru.aasmc.petfinder.common.utils.getTextWidth
 class ProgressButton @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
-    defStyleAttr: Int = 0
-) : View(context, attrs, defStyleAttr) {
+    // the attribute in the theme that specifies which style the view uses
+    defStyleAttr: Int = R.attr.progressButtonStyle,
+    // the style the view uses. (usually ships with the library or SDK)
+    defStyleRes: Int = R.style.ProgressButtonStyle
+) : View(context, attrs, defStyleAttr, defStyleRes) {
 
     private var buttonText: String = ""
 
     private val textPaint = Paint().apply {
         isAntiAlias = true // to smooth the edges of shapes drawn on the screen with this paint
         style = Paint.Style.FILL
-        color = Color.WHITE
         textSize = context.dpToPx(16f)
     }
 
@@ -41,7 +44,6 @@ class ProgressButton @JvmOverloads constructor(
     private val progressPaint = Paint().apply {
         isAntiAlias = true
         style = Paint.Style.STROKE
-        color = Color.WHITE
         strokeWidth = context.dpToPx(2f)
     }
 
@@ -60,8 +62,39 @@ class ProgressButton @JvmOverloads constructor(
     private var drawCheck = false
 
     init {
-        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.ProgressButton)
+        val typedArray = context.obtainStyledAttributes(
+            attrs,
+            R.styleable.ProgressButton,
+            defStyleAttr,
+            defStyleRes
+        )
         buttonText = typedArray.getString(R.styleable.ProgressButton_progressButton_text) ?: ""
+
+        val typedValue = TypedValue()
+        context.theme.resolveAttribute(android.R.attr.colorPrimary, typedValue, true)
+        val defaultBackgroundColor = typedValue.data
+
+        val defaultTextColor = Color.WHITE
+        val defaultProgressColor = Color.WHITE
+
+        val backgroundColor = typedArray.getColor(
+            R.styleable.ProgressButton_progressButton_backgroundColor,
+            defaultBackgroundColor
+        )
+        backgroundPaint.color = backgroundColor
+
+        val textColor = typedArray.getColor(
+            R.styleable.ProgressButton_progressButton_textColor,
+            defaultTextColor
+        )
+        textPaint.color = textColor
+
+        val progressColor = typedArray.getColor(
+            R.styleable.ProgressButton_progressButton_progressColor,
+            defaultProgressColor
+        )
+        progressPaint.color = progressColor
+
         typedArray.recycle()
     }
 

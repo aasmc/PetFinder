@@ -5,7 +5,7 @@ import ru.aasmc.petfinder.common.domain.model.animal.AnimalWithDetails
 import ru.aasmc.petfinder.common.presentation.model.mappers.UiMapper
 import javax.inject.Inject
 
-class UiAnimalDetailsMapper @Inject constructor(): UiMapper<AnimalWithDetails, UIAnimalDetailed> {
+class UiAnimalDetailsMapper @Inject constructor() : UiMapper<AnimalWithDetails, UIAnimalDetailed> {
 
     override fun mapToView(input: AnimalWithDetails): UIAnimalDetailed {
         return UIAnimalDetailed(
@@ -15,6 +15,8 @@ class UiAnimalDetailsMapper @Inject constructor(): UiMapper<AnimalWithDetails, U
             description = input.details.description,
             sprayNeutered = input.details.healthDetails.isSpayedOrNeutered,
             specialNeeds = input.details.healthDetails.hasSpecialNeeds,
+            declawed = input.details.healthDetails.isDeclawed,
+            shotsCurrent = input.details.healthDetails.shotsAreCurrent,
             tags = input.tags,
             phone = input.details.organization.contact.phone
         )

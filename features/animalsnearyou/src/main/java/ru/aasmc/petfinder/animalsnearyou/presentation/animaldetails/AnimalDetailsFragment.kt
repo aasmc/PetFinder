@@ -27,6 +27,7 @@ import ru.aasmc.petfinder.animalsnearyou.R
 import ru.aasmc.petfinder.animalsnearyou.databinding.FragmentDetailsBinding
 import ru.aasmc.petfinder.animalsnearyou.presentation.animaldetails.model.UIAnimalDetailed
 import ru.aasmc.petfinder.common.utils.setImageWithCrossFade
+import ru.aasmc.petfinder.common.utils.toEmoji
 import ru.aasmc.petfinder.common.utils.toEnglish
 
 @AndroidEntryPoint
@@ -158,8 +159,10 @@ class AnimalDetailsFragment : Fragment() {
         binding.name.text = animalDetails.name
         binding.description.text = animalDetails.description
         binding.image.setImageWithCrossFade(animalDetails.photo)
-        binding.sprayedNeutered.text = animalDetails.sprayNeutered.toEnglish()
-        binding.specialNeeds.text = animalDetails.specialNeeds.toEnglish()
+        binding.sprayedNeutered.text = animalDetails.sprayNeutered.toEmoji()
+        binding.specialNeeds.text = animalDetails.specialNeeds.toEmoji()
+        binding.declawed.text = animalDetails.declawed.toEmoji()
+        binding.shotsCurrent.text = animalDetails.shotsCurrent.toEmoji()
 
         val doubleTapGestureListener = object : GestureDetector.SimpleOnGestureListener() {
             override fun onDoubleTap(e: MotionEvent?): Boolean {
