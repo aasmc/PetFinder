@@ -2,4 +2,7 @@
     <string name="app_name">Pet Finder</string>
 
     <string name="dynamic_feature_sharing_title">Share an animal</string>
+    <string name="light_theme_menu_title">Light theme</string>
+    <string name="dark_theme_menu_title">Dark theme</string>
+    <string name="follow_system_menu_title">Follow System</string>
 </resources>

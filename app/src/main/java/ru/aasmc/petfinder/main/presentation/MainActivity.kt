@@ -1,9 +1,12 @@
 package ru.aasmc.petfinder.main.presentation
 
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -27,7 +30,7 @@ class MainActivity : AppCompatActivity() {
     private val viewModel by viewModels<MainActivityViewModel>()
 
     private val navController by lazy {
-        (supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as DynamicNavHostFragment)
+        (supportFragmentManager.findFragmentById(ru.aasmc.petfinder.R.id.nav_host_fragment) as DynamicNavHostFragment)
             .navController
     }
 
@@ -53,6 +56,28 @@ class MainActivity : AppCompatActivity() {
         setupBottomNav()
         triggerStartDestinationEvent()
         observeViewEffects()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        val inflater = menuInflater
+        inflater.inflate(R.menu.theme_options, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        val themeMode = when (item.itemId) {
+            R.id.light_theme -> {
+                AppCompatDelegate.MODE_NIGHT_NO
+            }
+            R.id.dark_theme -> {
+                AppCompatDelegate.MODE_NIGHT_YES
+            }
+            else -> {
+                AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+            }
+        }
+        AppCompatDelegate.setDefaultNightMode(themeMode)
+        return true
     }
 
     override fun onSupportNavigateUp(): Boolean {
