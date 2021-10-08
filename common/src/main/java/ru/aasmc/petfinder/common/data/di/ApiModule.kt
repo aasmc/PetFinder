@@ -57,6 +57,8 @@ object ApiModule {
             .addInterceptor(authenticationInterceptor)
             // third add logging capabilities
             .addInterceptor(httpLoggingInterceptor)
+            // prevent caching data sent over the network
+//            .cache(null)
             .build()
     }
 

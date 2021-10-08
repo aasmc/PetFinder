@@ -4,18 +4,18 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.biometric.BiometricManager
+import androidx.biometric.BiometricPrompt
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.dynamicfeatures.fragment.DynamicNavHostFragment
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
-import androidx.navigation.ui.setupWithNavController
+import androidx.navigation.ui.*
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.flow.collect
@@ -26,11 +26,13 @@ import ru.aasmc.petfinder.common.data.preferences.PetSavePreferences
 import ru.aasmc.petfinder.common.data.preferences.Preferences
 import ru.aasmc.petfinder.common.domain.model.user.User
 import ru.aasmc.petfinder.common.domain.repositories.UserRepository
+import ru.aasmc.petfinder.common.utils.Encryption.Companion.generateSecretKey
 import ru.aasmc.petfinder.common.utils.FileConstants
 import ru.aasmc.petfinder.databinding.ActivityMainBinding
 import java.io.File
 import java.io.FileInputStream
 import java.io.ObjectInputStream
+import java.util.concurrent.Executors
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -44,7 +46,7 @@ class MainActivity : AppCompatActivity() {
     private var workingFile: File? = null
 
     private val navController by lazy {
-        (supportFragmentManager.findFragmentById(ru.aasmc.petfinder.R.id.nav_host_fragment) as DynamicNavHostFragment)
+        (supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as DynamicNavHostFragment)
             .navController
     }
 
@@ -59,11 +61,18 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
+    private lateinit var biometricPrompt: BiometricPrompt
+    private lateinit var promptInfo: BiometricPrompt.PromptInfo
+
     override fun onCreate(savedInstanceState: Bundle?) {
 
         setTheme(R.style.AppTheme)
         super.onCreate(savedInstanceState)
-        // todo disable screenshots
+        // disables screenshots
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_SECURE,
+            WindowManager.LayoutParams.FLAG_SECURE
+        )
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -73,7 +82,6 @@ class MainActivity : AppCompatActivity() {
         setupBottomNav()
         setupWorkingFiles()
         updateLoggedInState()
-//        triggerStartDestinationEvent()
         observeViewEffects()
     }
 
@@ -102,6 +110,10 @@ class MainActivity : AppCompatActivity() {
                 AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
             }
         }
+        if (item.itemId == android.R.id.home) {
+            onBackPressed()
+            return true
+        }
         AppCompatDelegate.setDefaultNightMode(themeMode)
         return true
     }
@@ -129,7 +141,31 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun loginPressed(view: View) {
-        displayLogin(view, false)
+        val biometricManager = BiometricManager.from(this)
+        when (biometricManager.canAuthenticate(
+            BiometricManager.Authenticators.BIOMETRIC_WEAK or
+                    BiometricManager.Authenticators.DEVICE_CREDENTIAL
+        )) {
+            BiometricManager.BIOMETRIC_SUCCESS -> {
+                displayLogin(view, false)
+            }
+            BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE -> {
+                displayLogin(view, true)
+            }
+            BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE -> {
+                showToast("Biometric features are currently unavailable.")
+            }
+            BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> {
+                showToast("Please associate a biometric credential with your account.")
+            }
+            else -> {
+                showToast("An unknown error occurred. Please check your biometric settings.")
+            }
+        }
+    }
+
+    private fun showToast(message: String, duration: Int = Toast.LENGTH_SHORT) {
+        Toast.makeText(this, message, duration).show()
     }
 
     private fun updateLoggedInState() {
@@ -144,7 +180,47 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun displayLogin(view: View, fallback: Boolean) {
-        performLoginOperation(view)
+        val executor = Executors.newSingleThreadExecutor()
+        biometricPrompt = BiometricPrompt(this, executor,
+            object : BiometricPrompt.AuthenticationCallback() {
+                override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                    super.onAuthenticationError(errorCode, errString)
+                    runOnUiThread {
+                        showToast("Authentication error: $errString")
+                    }
+                }
+
+                override fun onAuthenticationFailed() {
+                    super.onAuthenticationFailed()
+                    runOnUiThread {
+                        showToast("Authentication failed.")
+                    }
+                }
+
+                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                    super.onAuthenticationSucceeded(result)
+                    runOnUiThread {
+                        showToast("Authentication succeeded.")
+                        if (!isSignedUp) {
+                            generateSecretKey()
+                        }
+                        performLoginOperation(view)
+                    }
+                }
+            })
+
+        promptInfo =
+            BiometricPrompt.PromptInfo.Builder()
+                .setTitle("Biometric login for Pet Finder")
+                .setSubtitle("Login using your biometric credentials.")
+                .setAllowedAuthenticators(
+                    BiometricManager.Authenticators.BIOMETRIC_WEAK or
+                            BiometricManager.Authenticators.DEVICE_CREDENTIAL
+                )
+                .build()
+
+
+        biometricPrompt.authenticate(promptInfo)
     }
 
     private fun performLoginOperation(view: View) {

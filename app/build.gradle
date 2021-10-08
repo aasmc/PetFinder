@@ -78,4 +78,9 @@ dependencies {
     implementation "androidx.room:room-runtime:$room_version"
     implementation "io.reactivex.rxjava2:rxjava:$rxjava_version"
 
+
+    // Security
+    implementation 'androidx.biometric:biometric:1.1.0'
+    implementation "androidx.security:security-crypto:$security_version"
+
 }

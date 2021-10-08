@@ -3,6 +3,7 @@ package ru.aasmc.petfinder.report
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
@@ -13,11 +14,16 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import dagger.hilt.android.AndroidEntryPoint
+import android.Manifest
+import androidx.activity.result.contract.ActivityResultContracts
 import ru.aasmc.petfinder.databinding.FragmentReportDetailBinding
 import java.io.File
+import java.io.RandomAccessFile
 import java.net.URL
+import java.security.SecureRandom
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 import javax.net.ssl.HttpsURLConnection
@@ -32,6 +38,28 @@ class ReportDetailFragment : Fragment() {
         private const val REPORT_SESSION_KEY = "session_key_in_next_chapter"
     }
 
+    private val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                launchGalleryIntent()
+            } else {
+                // todo handle denial of permission by user
+            }
+        }
+
+    private val galleryResultLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                //image from gallery
+                val selectedImage = result?.data?.data
+                selectedImage?.let {
+                    showUploadedFile(selectedImage)
+                }
+            } else {
+                // todo handle result not OK
+            }
+        }
+
     object ReportTracker {
         var reportNumber = AtomicInteger()
     }
@@ -43,8 +71,10 @@ class ReportDetailFragment : Fragment() {
     private val binding
         get() = _binding!!
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         _binding = FragmentReportDetailBinding.inflate(inflater, container, false)
 
         binding.sendButton.setOnClickListener {
@@ -64,9 +94,25 @@ class ReportDetailFragment : Fragment() {
         setupUI()
     }
 
+    override fun onPause() {
+        clearCaches()
+        super.onPause()
+    }
+
+    private fun clearCaches() {
+        context?.cacheDir?.deleteRecursively()
+        context?.externalCacheDir?.deleteRecursively()
+    }
+
     private fun setupUI() {
         binding.detailsEdtxtview.imeOptions = EditorInfo.IME_ACTION_DONE
         binding.detailsEdtxtview.setRawInputType(InputType.TYPE_CLASS_TEXT)
+    }
+
+    private fun launchGalleryIntent() {
+        val galleryIntent =
+            Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        galleryResultLauncher.launch(galleryIntent)
     }
 
     private fun sendReportPressed() {
@@ -76,7 +122,7 @@ class ReportDetailFragment : Fragment() {
             //1. Save report
             var reportString = binding.categoryEdtxtview.text.toString()
             reportString += " : "
-            reportString +=  binding.detailsEdtxtview.text.toString()
+            reportString += binding.detailsEdtxtview.text.toString()
             val reportID = UUID.randomUUID().toString()
 
             context?.let { theContext ->
@@ -89,9 +135,11 @@ class ReportDetailFragment : Fragment() {
             ReportTracker.reportNumber.incrementAndGet()
 
             //2. Send report
-            val postParameters = mapOf("application_id" to REPORT_APP_ID * REPORT_PROVIDER_ID,
+            val postParameters = mapOf(
+                "application_id" to REPORT_APP_ID * REPORT_PROVIDER_ID,
                 "report_id" to reportID,
-                "report" to reportString)
+                "report" to reportString
+            )
             if (postParameters.isNotEmpty()) {
                 //send report
                 val connection = URL(API_URL).openConnection() as HttpsURLConnection
@@ -101,8 +149,10 @@ class ReportDetailFragment : Fragment() {
             isSendingReport = false
             context?.let {
                 val report = "Report: ${ReportTracker.reportNumber.get()}"
-                val toast = Toast.makeText(it, "Thank you for your report.$report", Toast
-                    .LENGTH_LONG)
+                val toast = Toast.makeText(
+                    it, "Thank you for your report.$report", Toast
+                        .LENGTH_LONG
+                )
                 toast.show()
             }
 
@@ -113,26 +163,14 @@ class ReportDetailFragment : Fragment() {
     }
 
     private fun uploadPhotoPressed() {
-        val galleryIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-        startActivityForResult(galleryIntent, PIC_FROM_GALLERY)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        when (requestCode) {
-
-            PIC_FROM_GALLERY ->
-
-                if (resultCode == Activity.RESULT_OK) {
-
-                    //image from gallery
-                    val selectedImage = data?.data
-                    selectedImage?.let {
-                        showUploadedFile(selectedImage)
-                    }
-                }
-            else -> println("Didn't select picture option")
+        context?.let {
+            if (ContextCompat.checkSelfPermission(it, Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED
+            ) {
+                requestPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+            } else {
+                launchGalleryIntent()
+            }
         }
     }
 
