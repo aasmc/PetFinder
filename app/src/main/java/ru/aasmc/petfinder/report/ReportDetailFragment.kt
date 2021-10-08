@@ -19,6 +19,7 @@ import androidx.fragment.app.Fragment
 import dagger.hilt.android.AndroidEntryPoint
 import android.Manifest
 import androidx.activity.result.contract.ActivityResultContracts
+import ru.aasmc.petfinder.common.utils.Encryption.Companion.encryptFile
 import ru.aasmc.petfinder.databinding.FragmentReportDetailBinding
 import java.io.File
 import java.io.RandomAccessFile
@@ -127,7 +128,8 @@ class ReportDetailFragment : Fragment() {
 
             context?.let { theContext ->
                 val file = File(theContext.filesDir?.absolutePath, "$reportID.txt")
-                file.bufferedWriter().use {
+                val encryptedFile = encryptFile(theContext, file)
+                encryptedFile.openFileOutput().bufferedWriter().use {
                     it.write(reportString)
                 }
             }

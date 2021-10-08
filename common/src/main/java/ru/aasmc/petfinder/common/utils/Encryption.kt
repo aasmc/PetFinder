@@ -6,11 +6,16 @@ import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Log
 import androidx.security.crypto.EncryptedFile
+import androidx.security.crypto.MasterKey
+import androidx.security.crypto.MasterKeys
+import ru.aasmc.petfinder.common.data.preferences.Preferences
 import java.io.File
 import java.security.KeyStore
+import java.security.SecureRandom
 import java.util.HashMap
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
+import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 
 class Encryption {
@@ -19,26 +24,84 @@ class Encryption {
         private const val KEYSTORE_ALIAS = "PetSaveLoginKey"
         private const val PROVIDER = "AndroidKeyStore"
 
+        private fun getSecretKey(): SecretKey {
+            val keyStore = KeyStore.getInstance(PROVIDER)
+
+            // before the keystore can be accessed it must be loaded
+            keyStore.load(null)
+            return keyStore.getKey(KEYSTORE_ALIAS, null) as SecretKey
+        }
+
+        @TargetApi(23)
+        private fun getCipher(): Cipher {
+            return Cipher.getInstance(
+                KeyProperties.KEY_ALGORITHM_AES + "/"
+                        + KeyProperties.BLOCK_MODE_GCM + "/"
+                        + KeyProperties.ENCRYPTION_PADDING_NONE
+            )
+        }
+
         @TargetApi(23)
         fun generateSecretKey() {
+            val keyGeneratorParameterSpec = KeyGenParameterSpec.Builder(
+                KEYSTORE_ALIAS,
+                KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
+            )
+                .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+                .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+                .setUserAuthenticationRequired(true)
+                .setUserAuthenticationValidityDurationSeconds(120)
+                .build()
 
+            val keyGenerator = KeyGenerator.getInstance(
+                KeyProperties.KEY_ALGORITHM_AES, PROVIDER
+            )
+
+            keyGenerator.init(keyGeneratorParameterSpec)
+            keyGenerator.generateKey()
         }
 
-        fun createLoginPassword(context: Context): ByteArray {
-            return ByteArray(0)
+        fun createLoginPassword(preferences: Preferences): ByteArray {
+            val cipher = getCipher()
+            val secretKey = getSecretKey()
+            val random = SecureRandom()
+            val passwordBytes = ByteArray(256)
+            // create a random password using SecureRandom
+            random.nextBytes(passwordBytes)
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey)
+            val ivParameters = cipher.parameters.getParameterSpec(GCMParameterSpec::class.java)
+            // randomized initialization vector, needed to decrypt the data, and save it to the shared preferences
+            val iv = ivParameters.iv
+            preferences.saveIV(iv)
+            return cipher.doFinal(passwordBytes)
         }
 
-        fun decryptPassword(context: Context, password: ByteArray): ByteArray {
-            return ByteArray(0)
+        fun decryptPassword(password: ByteArray, preferences: Preferences): ByteArray {
+            val cipher = getCipher()
+            val secretKey = getSecretKey()
+            val iv = preferences.iv()
+            val ivParams = GCMParameterSpec(128, iv)
+            cipher.init(Cipher.DECRYPT_MODE, secretKey, ivParams)
+            return cipher.doFinal(password)
         }
 
         @TargetApi(23)
-        fun encryptFile(context: Context, file: File): EncryptedFile? {
-            return null
+        fun encryptFile(context: Context, file: File): EncryptedFile {
+            val masterKey = MasterKey.Builder(context.applicationContext)
+                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                .build()
+            return EncryptedFile.Builder(
+                context,
+                file,
+                masterKey,
+                EncryptedFile.FileEncryptionScheme.AES256_GCM_HKDF_4KB
+            ).build()
         }
 
-        fun encrypt(dataToEncrypt: ByteArray,
-                    password: CharArray): HashMap<String, ByteArray> {
+        fun encrypt(
+            dataToEncrypt: ByteArray,
+            password: CharArray
+        ): HashMap<String, ByteArray> {
             val map = HashMap<String, ByteArray>()
 
             //TODO: Add custom encrypt code here
@@ -114,9 +177,12 @@ class Encryption {
         @TargetApi(23)
         fun keystoreTest() {
 
-            val keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore")
-            val keyGenParameterSpec = KeyGenParameterSpec.Builder("MyKeyAlias",
-                KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT)
+            val keyGenerator =
+                KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore")
+            val keyGenParameterSpec = KeyGenParameterSpec.Builder(
+                "MyKeyAlias",
+                KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
+            )
                 .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
                 .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
                 //.setUserAuthenticationRequired(true) // requires lock screen, invalidated if lock screen is disabled

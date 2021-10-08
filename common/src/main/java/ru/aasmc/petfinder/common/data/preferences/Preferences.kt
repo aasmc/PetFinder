@@ -1,5 +1,7 @@
 package ru.aasmc.petfinder.common.data.preferences
 
+import android.content.Context
+
 interface Preferences {
 
     fun putToken(token: String)
@@ -27,5 +29,9 @@ interface Preferences {
     fun putLastLoggedInTime()
 
     fun getLastLoggedIn(): String?
+
+    fun iv(): ByteArray
+
+    fun saveIV(iv: ByteArray)
 
 }

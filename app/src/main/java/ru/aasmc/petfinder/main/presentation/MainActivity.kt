@@ -1,6 +1,7 @@
 package ru.aasmc.petfinder.main.presentation
 
 import android.os.Bundle
+import android.util.Base64
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -26,6 +27,8 @@ import ru.aasmc.petfinder.common.data.preferences.PetSavePreferences
 import ru.aasmc.petfinder.common.data.preferences.Preferences
 import ru.aasmc.petfinder.common.domain.model.user.User
 import ru.aasmc.petfinder.common.domain.repositories.UserRepository
+import ru.aasmc.petfinder.common.utils.Encryption.Companion.createLoginPassword
+import ru.aasmc.petfinder.common.utils.Encryption.Companion.decryptPassword
 import ru.aasmc.petfinder.common.utils.Encryption.Companion.generateSecretKey
 import ru.aasmc.petfinder.common.utils.FileConstants
 import ru.aasmc.petfinder.databinding.ActivityMainBinding
@@ -235,8 +238,14 @@ class MainActivity : AppCompatActivity() {
                 val list = objectInputStream.readObject() as ArrayList<User>
                 val firstUser = list.first() as? User
                 if (firstUser is User) {
-                    // todo replace below with implementation that decrypts password
-                    success = true
+                    val password = decryptPassword(
+                        Base64.decode(firstUser.password, Base64.NO_WRAP),
+                        preferences
+                    )
+                    if (password.isNotEmpty()) {
+                        // here is the place to send the password to the server to authenticate
+                        success = true
+                    }
                 }
                 if (success) {
                     Toast.makeText(
@@ -254,7 +263,8 @@ class MainActivity : AppCompatActivity() {
                 objectInputStream.close()
                 fileInputStream.close()
             } else {
-                UserRepository.createDataSource(applicationContext, it, ByteArray(0))
+                val encryptedInfo = createLoginPassword(preferences)
+                UserRepository.createDataSource(applicationContext, it, encryptedInfo)
                 success = true
             }
         }

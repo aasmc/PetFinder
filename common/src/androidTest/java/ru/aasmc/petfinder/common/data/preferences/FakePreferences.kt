@@ -60,4 +60,12 @@ class FakePreferences: Preferences {
         return null
     }
 
+    override fun iv(): ByteArray {
+        return ByteArray(0)
+    }
+
+    override fun saveIV(iv: ByteArray) {
+        // not implemented
+    }
+
 }

@@ -2,7 +2,9 @@ package ru.aasmc.petfinder.common.data.preferences
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Base64
 import dagger.hilt.android.qualifiers.ApplicationContext
+import ru.aasmc.petfinder.common.data.preferences.PreferencesConstants.KEY_IV
 import ru.aasmc.petfinder.common.data.preferences.PreferencesConstants.KEY_LAST_LOGIN
 import ru.aasmc.petfinder.common.data.preferences.PreferencesConstants.KEY_MAX_DISTANCE
 import ru.aasmc.petfinder.common.data.preferences.PreferencesConstants.KEY_POSTCODE
@@ -80,13 +82,24 @@ class PetSavePreferences @Inject constructor(
         return preferences.getString(KEY_LAST_LOGIN, null)
     }
 
+    override fun iv(): ByteArray {
+        val base64Iv = preferences.getString(KEY_IV, "")
+        return Base64.decode(base64Iv, Base64.NO_WRAP)
+    }
+
+    override fun saveIV(iv: ByteArray) {
+        val ivString = Base64.encodeToString(iv, Base64.NO_WRAP)
+        edit {
+            putString(KEY_IV, ivString)
+        }
+    }
+
     private inline fun edit(block: SharedPreferences.Editor.() -> Unit) {
         with(preferences.edit()) {
             block()
             commit()
         }
     }
-
 }
 
 
