@@ -16,7 +16,11 @@ import java.util.HashMap
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
+import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.GCMParameterSpec
+import javax.crypto.spec.IvParameterSpec
+import javax.crypto.spec.PBEKeySpec
+import javax.crypto.spec.SecretKeySpec
 
 class Encryption {
     companion object {
@@ -103,9 +107,44 @@ class Encryption {
             password: CharArray
         ): HashMap<String, ByteArray> {
             val map = HashMap<String, ByteArray>()
+            try {
+                // a cryptographically strong random number generator
+                val random = SecureRandom()
+                // random data used for hashing with password to create a key
+                val salt = ByteArray(256)
+                random.nextBytes(salt)
 
-            //TODO: Add custom encrypt code here
+                // PBKDF2 - derive the key from the password, don't use passwords directly
+                // the higher the iteration number (1324 here), the longer it would take to operate on a set
+                // of keys during a brute force attack.
+                val pbKeSpec = PBEKeySpec(password, salt, 1324, 245)
+                val secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1")
+                val keyBytes = secretKeyFactory.generateSecret(pbKeSpec).encoded
+                val keySpec = SecretKeySpec(keyBytes, "AES")
 
+                // Create an initialization vector to XOR it with the first chunk of data
+                // that is going to be ciphered. Here we use a CBC (cipher block chaining) mode,
+                // that implies that we split data into chunks and XOR each chunk with the preceding one,
+                // but to enable proper cipher we need to XOR the first chunk also, and here comes
+                // initialization vector - some random data to be used for XOR with the first chunk.
+                val ivRandom = SecureRandom()
+                val iv = ByteArray(16)
+                ivRandom.nextBytes(iv)
+                val ivSpec = IvParameterSpec(iv)
+
+                // finally encrypt
+                val cipher = Cipher.getInstance("AES/CBC/PKCS7Padding")
+                cipher.init(Cipher.ENCRYPT_MODE, keySpec, ivSpec)
+                val encrypted = cipher.doFinal(dataToEncrypt)
+
+                // package the encrypted data to the hashMap
+                // we need salt and iv to decrypt it
+                map["salt"] = salt
+                map["iv"] = iv
+                map["encrypted"] = encrypted
+            } catch (e: Exception) {
+                Log.e("PetFinderApp", "encryption exception", e)
+            }
             return map
         }
 
@@ -113,8 +152,25 @@ class Encryption {
 
             var decrypted: ByteArray? = null
 
-            //TODO: Add custom decrypt code here
+            try {
+                val salt = map["salt"]
+                val iv = map["iv"]
+                val encrypted = map["encrypted"]
 
+                // regenerate key from password
+                val pbKeySpec = PBEKeySpec(password, salt, 1324, 256)
+                val secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1")
+                val keyBytes = secretKeyFactory.generateSecret(pbKeySpec).encoded
+                val keySpec = SecretKeySpec(keyBytes, "AES")
+
+                // decrypt
+                val cipher = Cipher.getInstance("AEC/CBC/PKCS7Padding")
+                val ivSpec = IvParameterSpec(iv)
+                cipher.init(Cipher.DECRYPT_MODE, keySpec, ivSpec)
+                decrypted = cipher.doFinal(encrypted)
+            } catch (e: Exception) {
+                Log.e("PetFinderApp", "decryption exception", e)
+            }
             return decrypted
         }
 

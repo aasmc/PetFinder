@@ -18,10 +18,14 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import dagger.hilt.android.AndroidEntryPoint
 import android.Manifest
+import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
+import ru.aasmc.petfinder.common.utils.Encryption
 import ru.aasmc.petfinder.common.utils.Encryption.Companion.encryptFile
 import ru.aasmc.petfinder.databinding.FragmentReportDetailBinding
 import java.io.File
+import java.io.FileOutputStream
+import java.io.ObjectOutputStream
 import java.io.RandomAccessFile
 import java.net.URL
 import java.security.SecureRandom
@@ -36,7 +40,7 @@ class ReportDetailFragment : Fragment() {
         private const val PIC_FROM_GALLERY = 2
         private const val REPORT_APP_ID = 46341L
         private const val REPORT_PROVIDER_ID = 46341L
-        private const val REPORT_SESSION_KEY = "session_key_in_next_chapter"
+        private const val REPORT_SESSION_KEY = "session_for_custom_encryption"
     }
 
     private val requestPermissionLauncher =
@@ -134,6 +138,8 @@ class ReportDetailFragment : Fragment() {
                 }
             }
 
+            testCustomEncryption(reportString)
+
             ReportTracker.reportNumber.incrementAndGet()
 
             //2. Send report
@@ -161,6 +167,25 @@ class ReportDetailFragment : Fragment() {
             val inputMethodManager = activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as
                     InputMethodManager
             inputMethodManager.hideSoftInputFromWindow(view?.windowToken, 0)
+        }
+    }
+
+    private fun testCustomEncryption(reportString: String) {
+        val password = REPORT_SESSION_KEY.toCharArray()
+        val bytes = reportString.toByteArray(Charsets.UTF_8)
+        val map = Encryption.encrypt(bytes, password)
+        val reportId = UUID.randomUUID().toString()
+        val outFile = File(activity?.filesDir?.absolutePath, "$reportId.txt")
+        ObjectOutputStream(FileOutputStream(outFile)).use {
+            it.writeObject(map)
+        }
+
+        // TEST decrypt
+        val decryptedBytes = Encryption.decrypt(map, password)
+        Log.d("Encryption test", "before showing dectypted bytes, size: ${decryptedBytes?.size}", )
+        decryptedBytes?.let {
+            val decryptedString = String(it, Charsets.UTF_8)
+            Log.d("Encryption test", "the decrypted string is: $decryptedString")
         }
     }
 
