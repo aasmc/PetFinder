@@ -1,9 +1,11 @@
 package ru.aasmc.petfinder.common.data.di
 
+import com.babylon.certificatetransparency.certificateTransparencyInterceptor
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import okhttp3.CertificatePinner
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -49,8 +51,24 @@ object ApiModule {
         networkStatusInterceptor: NetworkStatusInterceptor,
         authenticationInterceptor: AuthenticationInterceptor
     ): OkHttpClient {
+
+        val hostName = "**.petfinder.com"
+        val certificatePinner = CertificatePinner.Builder()
+            .add(hostName, "sha256/jx6sz/faeVkZtFfGl9r3BIxIkhOKqffMsK0iEi+1FX8=")
+            .add(hostName, "sha256/JSMzqOOrtyOT1kmau6zKhgT676hGgczD5VMdRMyJZFA=")
+            .build()
+
+        val ctInterceptor = certificateTransparencyInterceptor {
+            +"*.petfinder.com" // for subdomains
+            +"petfinder.com" // the asterisk doesn't cover base domain, so need to put it as well
+            // "*.*" // this will add all hosts
+            // -"legacy.petfinder.com"  // this will exclude specific hosts
+        }
+
         // need to add interceptors in order:
         return OkHttpClient.Builder()
+            .certificatePinner(certificatePinner)
+            .addNetworkInterceptor(ctInterceptor)
             // first check network
             .addInterceptor(networkStatusInterceptor)
             // second check authentication

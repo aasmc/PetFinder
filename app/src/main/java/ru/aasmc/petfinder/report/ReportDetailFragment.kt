@@ -18,11 +18,15 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import dagger.hilt.android.AndroidEntryPoint
 import android.Manifest
+import android.util.Base64
+import android.util.Base64.NO_WRAP
 import android.util.Log
+import android.view.Gravity
 import androidx.activity.result.contract.ActivityResultContracts
 import ru.aasmc.petfinder.common.utils.Encryption
 import ru.aasmc.petfinder.common.utils.Encryption.Companion.encryptFile
 import ru.aasmc.petfinder.databinding.FragmentReportDetailBinding
+import ru.aasmc.petfinder.main.presentation.MainActivity
 import java.io.File
 import java.io.FileOutputStream
 import java.io.ObjectOutputStream
@@ -38,8 +42,8 @@ class ReportDetailFragment : Fragment() {
     companion object {
         private const val API_URL = "https://example.com/?send_report"
         private const val PIC_FROM_GALLERY = 2
-        private const val REPORT_APP_ID = 46341L
-        private const val REPORT_PROVIDER_ID = 46341L
+        private const val REPORT_APP_ID = 46341
+        private const val REPORT_PROVIDER_ID = 46341
         private const val REPORT_SESSION_KEY = "session_for_custom_encryption"
     }
 
@@ -123,6 +127,7 @@ class ReportDetailFragment : Fragment() {
     private fun sendReportPressed() {
         if (!isSendingReport) {
             isSendingReport = true
+            var success = false
 
             //1. Save report
             var reportString = binding.categoryEdtxtview.text.toString()
@@ -143,18 +148,49 @@ class ReportDetailFragment : Fragment() {
             ReportTracker.reportNumber.incrementAndGet()
 
             //2. Send report
+            val mainActivity = activity as MainActivity
+            var requestSignature = ""
+            // 1: concatenate the parameters of the request string
+            val stringToSign = "$REPORT_APP_ID+$reportID+$reportString"
+            // 2: convert the string into a ByteArray
+            val bytesToSign = stringToSign.toByteArray(Charsets.UTF_8)
+            // 3: sign the bytes using private key and return the signature bytes
+            val signedData = mainActivity.clientAuthenticator.sign(bytesToSign)
+            // 4: turn the signature bytes into a Base64 string that can be easily
+            // sent over the network.
+            requestSignature = Base64.encodeToString(signedData, Base64.NO_WRAP)
             val postParameters = mapOf(
-                "application_id" to REPORT_APP_ID * REPORT_PROVIDER_ID,
+                "application_id" to REPORT_APP_ID,
                 "report_id" to reportID,
-                "report" to reportString
+                "report" to reportString,
+                "signature" to requestSignature
             )
             if (postParameters.isNotEmpty()) {
                 //send report
-                val connection = URL(API_URL).openConnection() as HttpsURLConnection
-                //...
-            }
+                mainActivity.reportManager.sendReport(postParameters) {
+                    val reportSent: Boolean = it["success"] as Boolean
+                    if (reportSent) {
+                        // todo verify signature here
+                        val serverSignature = it["signature"] as String
+                        val signatureBytes = Base64.decode(serverSignature, Base64.NO_WRAP)
 
-            isSendingReport = false
+                        val confirmationCode = it["confirmation_code"] as String
+                        val confirmationBytes = confirmationCode.toByteArray(Charsets.UTF_8)
+
+                        success = mainActivity.clientAuthenticator.verify(
+                            signatureBytes,
+                            confirmationBytes, mainActivity.serverPublicKeyString
+                        )
+                    }
+                    onReportReceived(success)
+                }
+            }
+        }
+    }
+
+    private fun onReportReceived(success: Boolean) {
+        isSendingReport = false
+        if (success) {
             context?.let {
                 val report = "Report: ${ReportTracker.reportNumber.get()}"
                 val toast = Toast.makeText(
@@ -163,11 +199,17 @@ class ReportDetailFragment : Fragment() {
                 )
                 toast.show()
             }
-
-            val inputMethodManager = activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as
-                    InputMethodManager
-            inputMethodManager.hideSoftInputFromWindow(view?.windowToken, 0)
+        } else {
+            val toast = Toast.makeText(
+                context, "There was a problem sending the report", Toast
+                    .LENGTH_LONG
+            )
+            toast.setGravity(Gravity.TOP, 0, 0)
+            toast.show()
         }
+        val inputMethodManager = activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as
+                InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(view?.windowToken, 0)
     }
 
     private fun testCustomEncryption(reportString: String) {
@@ -182,7 +224,7 @@ class ReportDetailFragment : Fragment() {
 
         // TEST decrypt
         val decryptedBytes = Encryption.decrypt(map, password)
-        Log.d("Encryption test", "before showing dectypted bytes, size: ${decryptedBytes?.size}", )
+        Log.d("Encryption test", "before showing dectypted bytes, size: ${decryptedBytes?.size}")
         decryptedBytes?.let {
             val decryptedString = String(it, Charsets.UTF_8)
             Log.d("Encryption test", "the decrypted string is: $decryptedString")

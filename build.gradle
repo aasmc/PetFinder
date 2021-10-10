@@ -41,6 +41,7 @@ buildscript {
         leakcanary_version = "2.5"
         dagger_version = "2.39.1"
         security_version = "1.1.0-alpha03"
+        babylonhealth_version = "0.3.0"
     }
 
     repositories {

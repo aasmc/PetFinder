@@ -23,6 +23,8 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import ru.aasmc.petfinder.R
 import ru.aasmc.petfinder.animalsnearyou.presentation.main.AnimalsNearYouFragmentViewModel
+import ru.aasmc.petfinder.common.data.api.Authenticator
+import ru.aasmc.petfinder.common.data.api.ReportManager
 import ru.aasmc.petfinder.common.data.preferences.PetSavePreferences
 import ru.aasmc.petfinder.common.data.preferences.Preferences
 import ru.aasmc.petfinder.common.domain.model.user.User
@@ -66,6 +68,10 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var biometricPrompt: BiometricPrompt
     private lateinit var promptInfo: BiometricPrompt.PromptInfo
+
+    val clientAuthenticator = Authenticator()
+    var serverPublicKeyString = ""
+    val reportManager = ReportManager()
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -243,8 +249,14 @@ class MainActivity : AppCompatActivity() {
                         preferences
                     )
                     if (password.isNotEmpty()) {
-                        // here is the place to send the password to the server to authenticate
-                        success = true
+                        // here is the place to send the password to the server to authenticat
+                        // login to a simulated server with password and public key
+                        // once the server verifies that info, it returns its public key as a string
+                        serverPublicKeyString = reportManager.login(
+                            Base64.encodeToString(password, Base64.NO_WRAP),
+                            clientAuthenticator.publicKey()
+                        )
+                        success = serverPublicKeyString.isNotEmpty()
                     }
                 }
                 if (success) {

@@ -117,7 +117,7 @@ class Encryption {
                 // PBKDF2 - derive the key from the password, don't use passwords directly
                 // the higher the iteration number (1324 here), the longer it would take to operate on a set
                 // of keys during a brute force attack.
-                val pbKeSpec = PBEKeySpec(password, salt, 1324, 245)
+                val pbKeSpec = PBEKeySpec(password, salt, 1324, 256)
                 val secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1")
                 val keyBytes = secretKeyFactory.generateSecret(pbKeSpec).encoded
                 val keySpec = SecretKeySpec(keyBytes, "AES")
@@ -164,7 +164,7 @@ class Encryption {
                 val keySpec = SecretKeySpec(keyBytes, "AES")
 
                 // decrypt
-                val cipher = Cipher.getInstance("AEC/CBC/PKCS7Padding")
+                val cipher = Cipher.getInstance("AES/CBC/PKCS7Padding")
                 val ivSpec = IvParameterSpec(iv)
                 cipher.init(Cipher.DECRYPT_MODE, keySpec, ivSpec)
                 decrypted = cipher.doFinal(encrypted)
