@@ -72,6 +72,8 @@ class ReportManager {
                     )
                     if (success) {
                         //Process data
+                        // upon successful submission of the report the server returns a
+                        // confirmation code (this is a simulated server)
                         val confirmationCode = UUID.randomUUID().toString()
                         val bytesToSign = confirmationCode.toByteArray(Charsets.UTF_8) // 1
                         val signedData = serverAuthenticator.sign(bytesToSign) // 2

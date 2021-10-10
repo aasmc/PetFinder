@@ -33,6 +33,7 @@ import ru.aasmc.petfinder.common.utils.Encryption.Companion.createLoginPassword
 import ru.aasmc.petfinder.common.utils.Encryption.Companion.decryptPassword
 import ru.aasmc.petfinder.common.utils.Encryption.Companion.generateSecretKey
 import ru.aasmc.petfinder.common.utils.FileConstants
+import ru.aasmc.petfinder.common.utils.Timing
 import ru.aasmc.petfinder.databinding.ActivityMainBinding
 import java.io.File
 import java.io.FileInputStream
@@ -259,6 +260,8 @@ class MainActivity : AppCompatActivity() {
                         success = serverPublicKeyString.isNotEmpty()
                     }
                 }
+                // Prevent timing attack by adding random delay
+                Timing.doRandomWork()
                 if (success) {
                     Toast.makeText(
                         this,
