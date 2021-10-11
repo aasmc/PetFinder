@@ -29,6 +29,7 @@ import ru.aasmc.petfinder.common.data.preferences.PetSavePreferences
 import ru.aasmc.petfinder.common.data.preferences.Preferences
 import ru.aasmc.petfinder.common.domain.model.user.User
 import ru.aasmc.petfinder.common.domain.repositories.UserRepository
+import ru.aasmc.petfinder.common.utils.DataValidator.Companion.isValidEmailString
 import ru.aasmc.petfinder.common.utils.Encryption.Companion.createLoginPassword
 import ru.aasmc.petfinder.common.utils.Encryption.Companion.decryptPassword
 import ru.aasmc.petfinder.common.utils.Encryption.Companion.generateSecretKey
@@ -151,25 +152,34 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun loginPressed(view: View) {
-        val biometricManager = BiometricManager.from(this)
-        when (biometricManager.canAuthenticate(
-            BiometricManager.Authenticators.BIOMETRIC_WEAK or
-                    BiometricManager.Authenticators.DEVICE_CREDENTIAL
-        )) {
-            BiometricManager.BIOMETRIC_SUCCESS -> {
-                displayLogin(view, false)
-            }
-            BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE -> {
-                displayLogin(view, true)
-            }
-            BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE -> {
-                showToast("Biometric features are currently unavailable.")
-            }
-            BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> {
-                showToast("Please associate a biometric credential with your account.")
-            }
-            else -> {
-                showToast("An unknown error occurred. Please check your biometric settings.")
+        var success = false
+        val email = binding.loginEmail.text.toString()
+        if (isSignedUp || isValidEmailString(email)) {
+            success = true
+        } else {
+            showToast("Please enter a valid email.")
+        }
+        if (success) {
+            val biometricManager = BiometricManager.from(this)
+            when (biometricManager.canAuthenticate(
+                BiometricManager.Authenticators.BIOMETRIC_WEAK or
+                        BiometricManager.Authenticators.DEVICE_CREDENTIAL
+            )) {
+                BiometricManager.BIOMETRIC_SUCCESS -> {
+                    displayLogin(view, false)
+                }
+                BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE -> {
+                    displayLogin(view, true)
+                }
+                BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE -> {
+                    showToast("Biometric features are currently unavailable.")
+                }
+                BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> {
+                    showToast("Please associate a biometric credential with your account.")
+                }
+                else -> {
+                    showToast("An unknown error occurred. Please check your biometric settings.")
+                }
             }
         }
     }

@@ -133,6 +133,15 @@ class ReportDetailFragment : Fragment() {
             var reportString = binding.categoryEdtxtview.text.toString()
             reportString += " : "
             reportString += binding.detailsEdtxtview.text.toString()
+            // sanitize report string here by stripping it of any potentially
+            // vulnerable characters that can be used for like SQL injections
+            // in the server
+            reportString = reportString.replace("\\", "")
+                .replace(";", "")
+                .replace("%", "")
+                .replace("\"", "")
+                .replace("\'", "")
+
             val reportID = UUID.randomUUID().toString()
 
             context?.let { theContext ->
