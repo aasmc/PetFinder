@@ -88,6 +88,9 @@ class ReportDetailFragment : Fragment() {
         var reportNumber = AtomicInteger()
     }
 
+    /**
+     * Can be read from multiple threads, so make it volatile to prevent race condition.
+     */
     @Volatile
     private var isSendingReport = false
 
@@ -169,7 +172,9 @@ class ReportDetailFragment : Fragment() {
 
             testCustomEncryption(reportString)
 
-            ReportTracker.reportNumber.incrementAndGet()
+            synchronized(this) {
+                ReportTracker.reportNumber.incrementAndGet()
+            }
 
             //2. Send report
             val mainActivity = activity as MainActivity
@@ -216,7 +221,10 @@ class ReportDetailFragment : Fragment() {
         isSendingReport = false
         if (success) {
             context?.let {
-                val report = "Report: ${ReportTracker.reportNumber.get()}"
+                var report: String
+                synchronized(this) {
+                    report = "Report: ${ReportTracker.reportNumber.get()}"
+                }
                 val toast = Toast.makeText(
                     it, "Thank you for your report.$report", Toast
                         .LENGTH_LONG
