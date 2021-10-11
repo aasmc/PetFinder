@@ -18,11 +18,14 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import dagger.hilt.android.AndroidEntryPoint
 import android.Manifest
+import android.os.Build
 import android.util.Base64
 import android.util.Base64.NO_WRAP
 import android.util.Log
 import android.view.Gravity
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
+import ru.aasmc.petfinder.common.utils.DataValidator.Companion.isValidJPEGAtPath
 import ru.aasmc.petfinder.common.utils.Encryption
 import ru.aasmc.petfinder.common.utils.Encryption.Companion.encryptFile
 import ru.aasmc.petfinder.databinding.FragmentReportDetailBinding
@@ -62,7 +65,19 @@ class ReportDetailFragment : Fragment() {
                 //image from gallery
                 val selectedImage = result?.data?.data
                 selectedImage?.let {
-                    showUploadedFile(selectedImage)
+                    val filePathColumn = arrayOf(MediaStore.Images.Media.DATA)
+                    val cursor = activity?.contentResolver?.query(
+                        selectedImage, filePathColumn,
+                        null, null, null
+                    )
+                    cursor?.moveToFirst()
+                    val columnIndex = cursor?.getColumnIndex(filePathColumn[0])
+                    var decodableImageString = ""
+                    columnIndex?.let {
+                        decodableImageString = cursor.getString(it)
+                    }
+                    cursor?.close()
+                    showUploadedFile(selectedImage, decodableImageString)
                 }
             } else {
                 // todo handle result not OK
@@ -252,23 +267,28 @@ class ReportDetailFragment : Fragment() {
         }
     }
 
-    private fun showUploadedFile(selectedImage: Uri) {
-        // get filename
-        val fileNameColumn = arrayOf(MediaStore.Images.Media.DISPLAY_NAME)
-        val nameCursor = activity?.contentResolver?.query(
-            selectedImage, fileNameColumn, null, null, null
-        )
+    private fun showUploadedFile(selectedImage: Uri, decodableImageString: String?) {
+        val isValid = isValidJPEGAtPath(decodableImageString)
+        if (isValid) {
+            // get filename
+            val fileNameColumn = arrayOf(MediaStore.Images.Media.DISPLAY_NAME)
+            val nameCursor = activity?.contentResolver?.query(
+                selectedImage, fileNameColumn, null, null, null
+            )
 
-        nameCursor?.moveToFirst()
-        val nameIndex = nameCursor?.getColumnIndex(fileNameColumn[0])
-        var fileName = ""
-        nameIndex?.let {
-            fileName = nameCursor.getString(it)
+            nameCursor?.moveToFirst()
+            val nameIndex = nameCursor?.getColumnIndex(fileNameColumn[0])
+            var fileName = ""
+            nameIndex?.let {
+                fileName = nameCursor.getString(it)
+            }
+            nameCursor?.close()
+
+            // update UI with filename
+            binding.uploadStatusTextview.text = fileName
+        } else {
+            Toast.makeText(context, "Please choose a JPEG image", Toast.LENGTH_SHORT).show()
         }
-        nameCursor?.close()
-
-        // update UI with filename
-        binding.uploadStatusTextview.text = fileName
     }
 }
 
