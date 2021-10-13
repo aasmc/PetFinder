@@ -128,7 +128,8 @@ for early android versions are implemented in APIModule.kt in provideOkHttpClien
 - App simulates user authentication on the server by using public and private keys for encrypting data transfer.
 
 #Branch maintaining
-// TODO
+In this branch I integrated the app with Firebase services: Crashlytics and Remote Config.
+I also added some release optimizations. 
 
 ## COPYRIGHT
 
