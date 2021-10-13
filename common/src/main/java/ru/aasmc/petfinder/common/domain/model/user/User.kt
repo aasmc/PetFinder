@@ -1,9 +1,11 @@
 package ru.aasmc.petfinder.common.domain.model.user
 
+import androidx.annotation.Keep
 import org.simpleframework.xml.Element
 import org.simpleframework.xml.Root
 import java.io.Serializable
 
+@Keep
 @Root(name = "user", strict = false)
 data class User constructor(
     @field:Element(name = "name")
