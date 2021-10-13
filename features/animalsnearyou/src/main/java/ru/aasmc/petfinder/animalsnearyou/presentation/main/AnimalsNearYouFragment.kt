@@ -12,6 +12,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.hilt.android.AndroidEntryPoint
 import ru.aasmc.petfinder.animalsnearyou.R
 import ru.aasmc.petfinder.animalsnearyou.databinding.FragmentAnimalsNearYouBinding

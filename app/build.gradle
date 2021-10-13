@@ -28,6 +28,13 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+        debug {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            firebaseCrashlytics {
+                mappingFileUploadEnabled false
+            }
+        }
     }
 
     compileOptions {
@@ -60,7 +67,7 @@ dependencies {
     api project(":common")
     api project(":logging")
     implementation project(":features:onboarding")
-//    implementation project(":features:sharing")
+    implementation project(":remoteconfig")
 
     // Support Libraries and material
     api "androidx.appcompat:appcompat:$appcompat_version"
