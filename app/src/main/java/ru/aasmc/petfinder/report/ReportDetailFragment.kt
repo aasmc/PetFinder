@@ -298,6 +298,11 @@ class ReportDetailFragment : Fragment() {
             Toast.makeText(context, "Please choose a JPEG image", Toast.LENGTH_SHORT).show()
         }
     }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 }
 
 

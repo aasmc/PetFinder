@@ -12,6 +12,9 @@ apply plugin: 'com.google.gms.google-services'
 
 apply plugin: 'com.google.firebase.crashlytics'
 
+apply plugin: 'com.squareup.leakcanary.deobfuscation'
+
+
 android {
     compileSdk 31
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -27,7 +30,6 @@ android {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            shrinkResources true
             crunchPngs true
         }
         debug {
@@ -58,6 +60,12 @@ android {
     }
 
     dynamicFeatures = [":features:sharing"]
+}
+
+leakCanary {
+  filterObfuscatedVariants { variant ->
+    variant.name == "debug"
+  }
 }
 
 dependencies {

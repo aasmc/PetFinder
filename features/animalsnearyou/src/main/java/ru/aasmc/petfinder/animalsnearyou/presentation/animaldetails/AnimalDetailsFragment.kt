@@ -56,36 +56,7 @@ class AnimalDetailsFragment : Fragment() {
         }
     }
 
-    // To increase the button size we increase the button's scaleX and scaleY properties
-    private val callScaleXSpringAnimation: SpringAnimation by lazy {
-        SpringAnimation(binding.call, DynamicAnimation.SCALE_X).apply {
-            spring = springForce
-        }
-    }
-
-    private val callScaleYSpringAnimation: SpringAnimation by lazy {
-        SpringAnimation(binding.call, DynamicAnimation.SCALE_Y).apply {
-            spring = springForce
-        }
-    }
-
     private val FLING_FRICTION = 2f
-
-    private val callFlingXAnimation: FlingAnimation by lazy {
-        FlingAnimation(binding.call, DynamicAnimation.X).apply {
-            friction = FLING_FRICTION
-            setMinValue(0f)
-            setMaxValue(binding.root.width.toFloat() - binding.call.width.toFloat())
-        }
-    }
-
-    private val callFlingYAnimation: FlingAnimation by lazy {
-        FlingAnimation(binding.call, DynamicAnimation.Y).apply {
-            friction = FLING_FRICTION
-            setMinValue(0f)
-            setMaxValue(binding.root.height.toFloat() - binding.call.width.toFloat())
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -151,6 +122,30 @@ class AnimalDetailsFragment : Fragment() {
 
     @SuppressLint("ClickableViewAccessibility")
     private fun displayPetDetails(animalDetails: UIAnimalDetailed, adopted: Boolean) {
+        // To increase the button size we increase the button's scaleX and scaleY properties
+        val callScaleXSpringAnimation: SpringAnimation =
+            SpringAnimation(binding.call, DynamicAnimation.SCALE_X).apply {
+                spring = springForce
+            }
+
+        val callScaleYSpringAnimation: SpringAnimation =
+            SpringAnimation(binding.call, DynamicAnimation.SCALE_Y).apply {
+                spring = springForce
+            }
+        val callFlingXAnimation: FlingAnimation =
+            FlingAnimation(binding.call, DynamicAnimation.X).apply {
+                friction = FLING_FRICTION
+                setMinValue(0f)
+                setMaxValue(binding.root.width.toFloat() - binding.call.width.toFloat())
+            }
+
+        val callFlingYAnimation: FlingAnimation =
+            FlingAnimation(binding.call, DynamicAnimation.Y).apply {
+                friction = FLING_FRICTION
+                setMinValue(0f)
+                setMaxValue(binding.root.height.toFloat() - binding.call.width.toFloat())
+            }
+
         binding.call.scaleX = 0.6f
         binding.call.scaleY = 0.6f
         binding.call.isVisible = true
