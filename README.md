@@ -127,7 +127,8 @@ for early android versions are implemented in APIModule.kt in provideOkHttpClien
 - Certificate transparency is added on top of certificate pinning. It informs about revocation of a certificate.
 - App simulates user authentication on the server by using public and private keys for encrypting data transfer.
 
-#Branch maintaining
+# Branch maintaining
+
 In this branch I integrated the app with Firebase services: Crashlytics and Remote Config.
 I also added some release optimizations. 
 
