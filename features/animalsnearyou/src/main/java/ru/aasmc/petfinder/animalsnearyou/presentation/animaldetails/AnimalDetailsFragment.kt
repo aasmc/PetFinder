@@ -220,6 +220,7 @@ class AnimalDetailsFragment : Fragment() {
 
         if (adopted) {
             binding.adoptButton.done()
+            binding.adoptButton.isEnabled = false
         }
     }
 
