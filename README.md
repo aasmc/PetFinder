@@ -1,13 +1,13 @@
 # Pet Finder educational app
 
-Educational project based on book 'Real-World Android by Tutorials'.
+Educational project based on the book 'Real-World Android by Tutorials'.
 
 ## Functionality
 
 The app has several branches that provide different functionality or features built on top of each
 other. Note, that the app's aim was not to create a perfect UI, but rather to learn various
 techniques and best practices of Android Development like: App Architecture, Data Storage,
-Networking, Security etc.
+Networking, Security etc. LeakCanary is used to detect memory leaks. 
 
 # Branch master 
 
@@ -29,7 +29,8 @@ It has two screens in the bottom navigation panel:
 Retrieves data from the Petfinder database about adoptable pets within the radius specified 
 on the first app launch after installation. Clicking on a pet takes user to the screen with 
 Animal Details where user receives some basic info about the pet. User can share (simulated for test 
-purposes only) the info on a social network via share button. 
+purposes only) the info on a social network via share button (this is a dynamic feature that is available
+only if the app is installed from Play Store).
 
 ### Search
 User can search for a pet by some criteria: type (types are retrieved from the API) and age (any, baby,
@@ -88,7 +89,7 @@ libraries.
 
 # Branch animation
 
-In this branch some animations are added to the app.
+In this branch some animations and support of light and dark themes are added to the app.
 App uses Lottie for complex animation that is shown to the user when a pet card is clicked - 
 a happy dog wiggling its tail. 
 The user can double-click a pet's photo (or placeholder) in Animal Details fragment and a vector-drawable
